@@ -1540,23 +1540,18 @@ const App={
       }
 
       const cid=Number(cow.id);
-      // ミルダスの最新日付を特定（分娩日・最終授精日のうち新しい方）
-      const mildasLatest=(()=>{
-        const dates=[];
-        if(r.分娩日) dates.push(r.分娩日.replace(/\//g,'-'));
-        if(r.最終授精日) dates.push(r.最終授精日.replace(/\//g,'-'));
-        return dates.length?dates.sort().slice(-1)[0]:null;
-      })();
+      // 今日の日付
+      const todayStr=today.toISOString().slice(0,10);
 
       // 治療・検査・その他は保持
       // 分娩・種付け・妊娠鑑定・PAG検査はミルダスで更新
-      // ただしミルダスの最新日付より新しい手動入力は保持する
+      // ただし今日入力した（今日の日付の）手動入力は保持する
       const mildasTypes=['分娩','種付け','妊娠鑑定','PAG検査'];
       STATE.events=STATE.events.filter(e=>{
         if(Number(e.cattleId)!==cid) return true;       // 別の牛は保持
         if(!mildasTypes.includes(e.type)) return true;  // 治療・検査等は保持
-        // ミルダスより新しい日付の手動入力は保持
-        if(mildasLatest && e.date>mildasLatest) return true;
+        // 今日の日付のイベントは保持（当日入力分）
+        if(e.date>=todayStr) return true;
         // それ以外はミルダスデータで上書き
         return false;
       });
