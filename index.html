@@ -365,7 +365,7 @@ function calcReproStats(cattleId){
       const isPlus=(pagEv.detail||'').includes('＋');
       const isMinus=(pagEv.detail||'').includes('－');
       pag=isPlus?'＋':isMinus?'－':null;
-      if(isPlus) preg='positive';  // PAG＋も妊娠確定
+      // PAG＋は妊娠確定とはしない（妊娠鑑定＋のみpreg=positive）
     }
     if(preg==='positive') next=addDays(lastInsem.date,285);
   }
