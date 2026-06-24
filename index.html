@@ -434,7 +434,7 @@ const App={
     if(name==='alert')   this.renderAlert();
     if(name==='calving') this.renderCalving();
     if(name==='list')    this.renderList();
-    if(name==='kojiki')  this.renderKojiki();
+    if(name==='kojiki'){SELECTED_COW=null; this.renderKojiki();}
     if(name==='today')   this.renderToday();
     if(name==='treatment') this.renderTreatment();
     if(name==='calendar')  this.renderCalendar();
