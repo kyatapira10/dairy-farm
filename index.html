@@ -579,8 +579,18 @@ const App={
     }
   },
 
-  _pagKey(code){ return 'pag_done_'+TODAY_STR+'_'+code; },
-  _pagDone(code){ return localStorage.getItem('pag_done_'+TODAY_STR+'_'+code)==='1'; },
+  _pagKey(code){
+    // 最終授精日を含むキーにすることで、新しい授精が入ったら自動リセット
+    const cow=STATE.cattle.find(c=>c.number===code||String(c.id)===String(code));
+    if(!cow) return 'pag_done_'+code;
+    const evs=STATE.events.filter(e=>Number(e.cattleId)===Number(cow.id));
+    evs.sort((a,b)=>b.date.localeCompare(a.date));
+    const lastBirth=evs.find(e=>e.type==='分娩');
+    const insemEvs=evs.filter(e=>e.type==='種付け'&&(!lastBirth||e.date>lastBirth.date));
+    const lastInsem=insemEvs[0];
+    return 'pag_done_'+(lastInsem?lastInsem.date:'noinsem')+'_'+code;
+  },
+  _pagDone(code){ return localStorage.getItem(this._pagKey(code))==='1'; },
   pagConfirm(code){
     localStorage.setItem(this._pagKey(code),'1');
     this.renderPagCheck();
@@ -2034,7 +2044,7 @@ const App={
         var ageAtStart=ageDays-daysSinceStart;
         if(ageAtStart>v.day) return;
         // 確認済みチェック
-        var key='vac_done_'+TODAY_STR+'_'+cow.number+'_'+v.name;
+        var key='vac_done_'+cow.number+'_'+v.name;
         if(localStorage.getItem(key)==='1') return;
         indivPending.push({cow:cow,ageDays:ageDays,v:v});
       });
@@ -2062,7 +2072,7 @@ const App={
     }
     for(var i=0;i<indivPending.length;i++){
       var c=indivPending[i].cow, ag=indivPending[i].ageDays, v=indivPending[i].v;
-      var vkey='vac_done_'+TODAY_STR+'_'+c.number+'_'+v.name;
+      var vkey='vac_done_'+c.number+'_'+v.name;
       html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0F4F8">';
       html+='<div style="width:24px;height:24px;border-radius:50%;background:'+v.color+';color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div>';
       html+='<div style="flex:1"><div style="font-size:13px;font-weight:800">'+esc(c.name)+'</div>';
