@@ -615,6 +615,9 @@ const App={
       if(c.preg==='positive') return false;
       if(c.dsi==null||c.dsi<28) return false;
       if(this._pagDone(c.code)) return false;
+      // 育成中はPAG対象外
+      const cow=STATE.cattle.find(x=>x.number===c.code);
+      if(cow&&cow.status==='育成中') return false;
       // 開始日時点で既に28日を超えていた牛を除外
       // 開始日のdsi = dsi - (today - startDate).days
       const daysSinceStart=Math.round((today-startDate)/86400000);
