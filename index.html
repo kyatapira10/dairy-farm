@@ -1418,7 +1418,7 @@ const App={
     }
     const det=qs('#f-evdet').value.trim()||'記録';
     const newId=Math.max(0,...STATE.events.map(e=>e.id))+1;
-    STATE.events.unshift({id:newId,cattleId:Number(cattleId),date:qs('#f-evdate').value,type,detail:det,vet:qs('#f-evvet').value});
+    STATE.events.unshift({id:newId,cattleId:Number(cattleId),date:qs('#f-evdate').value,type,detail:det,vet:qs('#f-evvet').value,manual:true});
     // 分娩記録時にstatusを泌乳中に自動更新
     if(type==='分娩'){
       STATE.cattle=STATE.cattle.map(c=>Number(c.id)===Number(cattleId)?{...c,status:'泌乳中'}:c);
@@ -1557,12 +1557,12 @@ const App={
       // 分娩・種付け・妊娠鑑定・PAG検査はミルダスで更新
       // ただし今日入力した（今日の日付の）手動入力は保持する
       const mildasTypes=['分娩','種付け','妊娠鑑定','PAG検査'];
+      // 手動入力フラグがあるものは保持対象
       STATE.events=STATE.events.filter(e=>{
         if(Number(e.cattleId)!==cid) return true;       // 別の牛は保持
         if(!mildasTypes.includes(e.type)) return true;  // 治療・検査等は保持
-        // 今日の日付のイベントは保持（当日入力分）
-        if(e.date>=todayStr) return true;
-        // それ以外はミルダスデータで上書き
+        if(e.manual) return true;                        // 手動入力は保持
+        // ミルダス由来（またはフラグなし）は日付に関係なく削除して上書き
         return false;
       });
 
