@@ -1172,6 +1172,7 @@ const App={
     SELECTED_COW=STATE.cattle.find(c=>Number(c.id)===Number(id));
     qs('#kojiki-list-view').classList.add('hidden');
     qs('#kojiki-detail-view').classList.remove('hidden');
+    this.renderDetail(SELECTED_COW);
   },
 
   backToList(){
