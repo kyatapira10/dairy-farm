@@ -626,8 +626,6 @@ const App={
       return true;
     });
 
-    const done=D.filter(c=>this._pagDone(c.code)&&c.dsi!=null&&c.dsi>=28&&c.preg!=='positive');
-
     const printLines=targets.map(function(c,i){return (i+1)+'. '+c.name+'（'+c.code+'）授精後'+c.dsi+'日';}).join('\n');
 
     let html=`<div class="card" style="margin-bottom:12px">
@@ -635,14 +633,13 @@ const App={
         <div>
           <div style="font-size:13px;font-weight:800;color:#1B3A5C">🧪 PAG検査対象
             <span style="font-size:20px;font-weight:900;color:#AD1457;margin-left:6px">${targets.length}頭</span>
-            ${done.length>0?`<span style="font-size:12px;color:#7A9AB0;margin-left:6px">（確認済み ${done.length}頭）</span>`:''}
           </div>
           <div style="font-size:10px;color:#7A9AB0;margin-top:2px">授精後28日目以降・妊鑑未確定</div>
         </div>
         <button onclick="App.copyPagCheck()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
       </div>`;
 
-    if(targets.length===0&&done.length===0){
+    if(targets.length===0){
       html+=`<div style="color:#7A9AB0;text-align:center;padding:20px;font-size:13px">本日の対象牛はいません</div>`;
     }
 
@@ -661,17 +658,6 @@ const App={
       </div>`;
     });
 
-    if(done.length>0){
-      html+=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid #EEF2F7">
-        <div style="font-size:11px;color:#7A9AB0;font-weight:700;margin-bottom:6px">✓ 確認済み</div>`;
-      done.forEach(c=>{
-        html+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;opacity:.5">
-          <span style="color:#AD1457;font-size:14px">✓</span>
-          <span style="font-size:12px;color:#7A9AB0;text-decoration:line-through">${esc(c.name)}　授精後${c.dsi}日</span>
-        </div>`;
-      });
-      html+=`</div>`;
-    }
     html+=`</div>`;
     qs('#pagcheck-list').innerHTML=html;
   },
@@ -2197,12 +2183,7 @@ const App={
       html+='<button data-mkey="'+mkey+'" onclick="localStorage.setItem(this.dataset.mkey,&quot;1&quot;);App.renderVaccine();" style="background:#E65100;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">✓ 確認済み</button>';
       html+='</div></div>';
     }
-    if(month12Done.length){
-      html+='<div style="margin-top:8px;font-size:11px;color:#7A9AB0;font-weight:700;margin-bottom:4px">✓ 確認済み（'+month12Done.length+'頭）</div>';
-      for(var k=0;k<month12Done.length;k++){
-        html+='<div style="opacity:.5;font-size:12px;color:#7A9AB0;padding:3px 0;text-decoration:line-through">'+esc(month12Done[k].cow.name)+'　'+month12Done[k].twelveDate+'</div>';
-      }
-    }
+
     html+='</div>';
     qs('#vaccine-list').innerHTML=html;
   },
