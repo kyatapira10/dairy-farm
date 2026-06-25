@@ -599,18 +599,9 @@ const App={
 
   renderPagCheck(){
     const D=buildReproList();
-    const today=TODAY;
-
-    // 今日の日付をlocalStorageに記録（初回起動日を保存）
-    const startKey='pag_start_date';
-    if(!localStorage.getItem(startKey)){
-      localStorage.setItem(startKey, TODAY_STR);
-    }
-    const startDate=new Date(localStorage.getItem(startKey));
-    startDate.setHours(0,0,0,0);
 
     // 対象: 授精後28日以上 かつ 妊鑑+でない かつ 確認済みでない
-    // ただし開始日より前に28日を超えた牛は除外
+    // 「今日時点ですでに28日超え」の牛は初回表示日を記録し、今日が初回なら除外
     const targets=D.filter(c=>{
       if(c.preg==='positive') return false;
       if(c.dsi==null||c.dsi<28) return false;
@@ -618,11 +609,31 @@ const App={
       // 育成中はPAG対象外
       const cow=STATE.cattle.find(x=>x.number===c.code);
       if(cow&&cow.status==='育成中') return false;
-      // 開始日時点で既に28日を超えていた牛を除外
-      // 開始日のdsi = dsi - (today - startDate).days
-      const daysSinceStart=Math.round((today-startDate)/86400000);
-      const dsiAtStart=c.dsi-daysSinceStart;
-      if(dsiAtStart>28) return false;  // 開始日時点で既に超過
+      // 授精日から28日になる日付を計算
+      const cow2=STATE.cattle.find(x=>x.number===c.code);
+      const evs=STATE.events.filter(e=>Number(e.cattleId)===Number(cow2&&cow2.id));
+      evs.sort((a,b)=>b.date.localeCompare(a.date));
+      const lastBirth=evs.find(e=>e.type==='分娩');
+      const insemEvs=evs.filter(e=>e.type==='種付け'&&(!lastBirth||e.date>lastBirth.date));
+      const lastInsem=insemEvs[0];
+      if(!lastInsem) return false;
+      // 最終授精日 + 28日 = 表示開始日
+      const insemDate=new Date(lastInsem.date);
+      insemDate.setHours(0,0,0,0);
+      const showFrom=new Date(insemDate.getTime()+28*86400000);
+      // 表示開始日が今日より後なら除外（まだ28日来ていない）
+      // 表示開始日が今日なら表示（ちょうど28日）
+      // 表示開始日が今日より前なら → 今日以降に28日を超えたかチェック
+      if(showFrom>TODAY) return false;  // まだ28日未満
+      // showFromが今日より前 = 今日時点ですでに超えていた牛
+      // ただし今日がアプリ導入初日かどうかを判定
+      const appStartKey='pag_app_start';
+      if(!localStorage.getItem(appStartKey)){
+        localStorage.setItem(appStartKey, TODAY_STR);
+      }
+      const appStart=localStorage.getItem(appStartKey);
+      // showFromがappStart以前 = アプリ導入時点ですでに超えていた → 永久除外
+      if(showFrom<=new Date(appStart)) return false;
       return true;
     });
 
