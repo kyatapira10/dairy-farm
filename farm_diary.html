@@ -2,92 +2,66 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="農場日誌">
+<meta name="theme-color" content="#2C1810">
+<script>
+(function(){
+  const icon = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#2C1810"/><text x="96" y="130" font-size="100" text-anchor="middle">🌿</text></svg>');
+  const m = {name:"農場日誌", short_name:"農場日誌", start_url:"./farm_diary.html", display:"standalone", background_color:"#F6F4F0", theme_color:"#2C1810", orientation:"portrait", icons:[{src:icon, sizes:"192x192", type:"image/svg+xml"}]};
+  const b = new Blob([JSON.stringify(m)], {type:'application/json'});
+  const l = document.createElement('link');
+  l.rel = 'manifest';
+  l.href = URL.createObjectURL(b);
+  document.head.appendChild(l);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>農場日誌</title>
 <style>
   :root {
-    --soil: #2C1810;
-    --hay: #C49A3C;
-    --hay-light: #FBF3D8;
-    --grass: #3D6B3A;
-    --grass-light: #E8F2E7;
-    --mist: #F6F4F0;
-    --ink: #1A1A1A;
-    --mid: #888078;
-    --line: #E0DAD0;
-    --white: #FFFFFF;
-    --alert: #C0392B;
-    --alert-bg: #FDF0EE;
-    --plan: #6B3FA0;
-    --plan-light: #F0EAF8;
+    --soil: #2C1810; --hay: #C49A3C; --hay-light: #FBF3D8;
+    --grass: #3D6B3A; --grass-light: #E8F2E7;
+    --mist: #F6F4F0; --ink: #1A1A1A; --mid: #888078;
+    --line: #E0DAD0; --white: #FFFFFF;
+    --alert: #C0392B; --alert-bg: #FDF0EE;
+    --plan: #6B3FA0; --plan-light: #F0EAF8;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif; background: var(--mist); color: var(--ink); min-height: 100vh; }
-
-  /* ── Header ── */
   header { background: var(--soil); color: white; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   header h1 { font-size: 18px; font-weight: 700; }
   .date-badge { font-size: 15px; font-weight: 700; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; cursor: pointer; }
-  .date-badge:active { background: rgba(255,255,255,0.28); }
-
-  /* ── Autosave ── */
   #autoSaveMsg { position: fixed; top: 58px; right: 12px; z-index: 200; background: var(--grass); color: white; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
   #autoSaveMsg.show { opacity: 1; }
-
-  /* ── Tabs ── */
   .tabs { display: grid; grid-template-columns: repeat(4,1fr); background: white; border-bottom: 2px solid var(--line); position: sticky; top: 52px; z-index: 90; }
   .tab { padding: 11px 4px; font-size: 12px; font-weight: 700; color: var(--mid); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; text-align: center; line-height: 1.4; }
   .tab.active { color: var(--soil); border-bottom-color: var(--hay); }
-  .tab:active { background: var(--mist); }
-
-  /* ── Main ── */
   main { max-width: 600px; margin: 0 auto; padding: 14px 14px 60px; }
   .panel { display: none; }
   .panel.active { display: block; }
-
-  /* ── Today Dashboard ── */
   .today-section { margin-bottom: 18px; }
-  .today-section-title {
-    font-size: 11px; font-weight: 700; color: var(--mid);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    margin-bottom: 8px; padding-left: 2px;
-  }
-
-  /* Today task cards */
-  .task-card {
-    background: white; border-radius: 12px; border: 1px solid var(--line);
-    margin-bottom: 8px; overflow: hidden;
-    display: flex; align-items: stretch;
-  }
-  .task-card .task-accent { width: 5px; flex-shrink: 0; }
-  .task-accent.accent-plan   { background: var(--plan); }
-  .task-accent.accent-field  { background: var(--grass); }
-  .task-accent.accent-cow    { background: var(--alert); }
-  .task-accent.accent-repro  { background: var(--hay); }
-  .task-card .task-body { flex: 1; padding: 13px 14px; }
-  .task-card .task-meta { font-size: 11px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .task-card .task-main { font-size: 15px; font-weight: 700; color: var(--ink); }
-  .task-card .task-sub  { font-size: 13px; color: var(--mid); margin-top: 2px; }
-  .task-card .task-arrow { display: flex; align-items: center; padding: 0 14px; color: var(--mid); font-size: 20px; cursor: pointer; }
-  .task-card:active { background: var(--mist); }
-
-  /* Complete button in task card */
+  .today-section-title { font-size: 11px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; padding-left: 2px; }
+  .task-card { background: white; border-radius: 12px; border: 1px solid var(--line); margin-bottom: 8px; overflow: hidden; display: flex; align-items: stretch; }
+  .task-accent { width: 5px; flex-shrink: 0; }
+  .accent-plan  { background: var(--plan); }
+  .accent-field { background: var(--grass); }
+  .accent-cow   { background: var(--alert); }
+  .accent-repro { background: var(--hay); }
+  .task-body { flex: 1; padding: 13px 14px; }
+  .task-meta { font-size: 11px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .task-main { font-size: 15px; font-weight: 700; }
+  .task-sub  { font-size: 13px; color: var(--mid); margin-top: 2px; }
+  .task-arrow { display: flex; align-items: center; padding: 0 14px; color: var(--mid); font-size: 20px; cursor: pointer; }
   .task-done-btn { background: var(--grass); color: white; border: none; border-radius: 7px; padding: 7px 14px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
-  .task-done-btn:active { background: #2A5028; }
-
   .today-empty { background: white; border-radius: 12px; border: 1px solid var(--line); padding: 20px 16px; text-align: center; color: var(--mid); font-size: 13px; }
   .today-empty .ei { font-size: 28px; margin-bottom: 6px; }
-
-  /* Quick add buttons */
   .quick-add-row { display: flex; gap: 8px; margin-top: 4px; }
-  .quick-btn { flex: 1; padding: 12px 8px; background: white; border: 1.5px solid var(--line); border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--mid); cursor: pointer; text-align: center; font-family: inherit; transition: all 0.1s; }
-  .quick-btn:active { border-color: var(--hay); background: var(--hay-light); color: var(--soil); }
-
-  /* ── Calendar ── */
+  .quick-btn { flex: 1; padding: 12px 8px; background: white; border: 1.5px solid var(--line); border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--mid); cursor: pointer; text-align: center; font-family: inherit; }
   .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 10px; }
   .cal-nav span { font-size: 17px; font-weight: 700; color: var(--soil); }
   .cal-nav-btn { background: white; border: 1.5px solid var(--line); border-radius: 10px; width: 40px; height: 40px; font-size: 20px; cursor: pointer; color: var(--soil); display: flex; align-items: center; justify-content: center; }
-  .cal-nav-btn:active { background: var(--hay-light); }
   .cal-wrap { background: white; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
   .cal-dow-row { display: grid; grid-template-columns: repeat(7,1fr); background: var(--mist); border-bottom: 1px solid var(--line); }
   .cal-dow { text-align: center; font-size: 11px; font-weight: 700; color: var(--mid); padding: 9px 0; }
@@ -95,37 +69,26 @@
   #calDays { display: grid; grid-template-columns: repeat(7,1fr); }
   .cal-cell { min-height: 64px; padding: 6px 3px 4px; cursor: pointer; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .cal-cell:nth-child(7n) { border-right: none; }
-  .cal-cell:active { background: var(--hay-light); }
   .cal-cell.other-month { opacity: 0.3; pointer-events: none; }
   .cal-cell.today .cal-num { background: var(--soil); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
   .cal-cell.selected-day { background: var(--hay-light); }
-  .cal-cell.is-sun .cal-num { color: #B03020; }
-  .cal-cell.is-sat .cal-num { color: #2060A0; }
+  .cal-cell.is-sun .cal-num { color: #B03020; } .cal-cell.is-sat .cal-num { color: #2060A0; }
   .cal-num { font-size: 14px; font-weight: 700; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; margin-bottom: 3px; }
   .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; padding: 0 2px; }
   .cal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .dot-cow   { background: var(--alert); }
-  .dot-field { background: var(--grass); }
-  .dot-plan  { background: var(--plan); }
+  .dot-cow   { background: var(--alert); } .dot-field { background: var(--grass); } .dot-plan { background: var(--plan); }
   .cal-legend { display: flex; gap: 14px; padding: 10px 2px 2px; font-size: 12px; color: var(--mid); align-items: center; }
   .cal-legend .cal-dot { display: inline-block; margin-right: 3px; vertical-align: middle; }
-
-  /* ── Cards ── */
   .sec-title { font-size: 12px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; padding: 16px 0 8px; }
   .card { background: white; border-radius: 12px; border: 1px solid var(--line); margin-bottom: 10px; overflow: hidden; }
   .card-head { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; background: var(--mist); border-bottom: 1px solid var(--line); }
   .card-body { padding: 14px; }
-
-  /* ── Form ── */
-  .field { margin-bottom: 13px; }
-  .field:last-child { margin-bottom: 0; }
+  .field { margin-bottom: 13px; } .field:last-child { margin-bottom: 0; }
   label { display: block; font-size: 12px; font-weight: 700; color: var(--mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
   input[type="text"],input[type="date"],input[type="number"],select,textarea { width: 100%; padding: 12px 13px; border: 1.5px solid var(--line); border-radius: 9px; font-size: 16px; font-family: inherit; color: var(--ink); background: white; -webkit-appearance: none; }
   input:focus,select:focus,textarea:focus { outline: none; border-color: var(--hay); }
   textarea { resize: vertical; min-height: 70px; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  /* ── Chips ── */
   .type-chips { display: flex; flex-wrap: wrap; gap: 7px; }
   .type-chip { padding: 9px 14px; border: 1.5px solid var(--line); border-radius: 22px; background: white; font-size: 14px; font-weight: 600; color: var(--mid); cursor: pointer; }
   .type-chip.sel-cow { border-color: var(--alert); background: var(--alert-bg); color: var(--alert); }
@@ -135,38 +98,15 @@
   .quarter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; max-width: 210px; }
   .quarter-btn { padding: 11px 6px; border: 1.5px solid var(--line); border-radius: 9px; background: white; font-size: 14px; font-weight: 600; color: var(--mid); cursor: pointer; text-align: center; }
   .quarter-btn.selected { border-color: var(--alert); background: var(--alert-bg); color: var(--alert); }
-
-  /* ── Buttons ── */
   .btn-add { width: 100%; padding: 14px; border: 2px dashed var(--line); border-radius: 10px; background: transparent; color: var(--mid); font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; margin-top: 4px; }
-  .btn-add:active { border-color: var(--hay); color: var(--soil); background: var(--hay-light); }
   .btn-del { background: none; border: none; color: #CCC; font-size: 22px; cursor: pointer; padding: 2px 6px; line-height: 1; }
-  .btn-del:active { color: var(--alert); }
-  .btn-done { background: var(--grass); color: white; border: none; border-radius: 9px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
-
-  /* ── Pills ── */
   .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-  .pill-cow     { background: #FDDDD9; color: #8B2018; }
-  .pill-field   { background: var(--grass-light); color: #2A5028; }
-  .pill-machine { background: #EDE8E0; color: #4A3C28; }
-  .pill-plan    { background: var(--plan-light); color: var(--plan); }
-
-  /* ── Schedule ── */
-  .sched-item { padding: 14px; border-bottom: 1px solid var(--line); }
-  .sched-item:last-child { border-bottom: none; }
-  .sched-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .date-chip { border-radius: 7px; padding: 4px 10px; font-size: 13px; font-weight: 700; background: var(--plan-light); color: var(--plan); }
-  .date-chip.today-chip { background: var(--plan); color: white; }
-  .date-chip.over-chip  { background: var(--alert-bg); color: var(--alert); }
-  .sched-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
-
-  /* ── Year compare ── */
+  .pill-cow { background: #FDDDD9; color: #8B2018; } .pill-field { background: var(--grass-light); color: #2A5028; } .pill-machine { background: #EDE8E0; color: #4A3C28; }
   .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .compare-table th { background: var(--mist); padding: 9px 10px; text-align: left; font-size: 11px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--line); }
   .compare-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
   .compare-table tr:last-child td { border-bottom: none; }
   .compare-table td:first-child { font-weight: 600; color: var(--soil); }
-
-  /* ── Date picker ── */
   #dpOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; }
   #dpOverlay.open { display: flex; }
   #dpBox { background: white; border-radius: 14px; padding: 22px; width: 300px; }
@@ -174,16 +114,12 @@
   .dp-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
   .btn-cancel { background: none; border: 1.5px solid var(--line); border-radius: 9px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--mid); }
   .btn-ok { background: var(--soil); color: white; border: none; border-radius: 9px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
-
   .empty { text-align: center; padding: 32px 16px; color: var(--mid); }
-  .empty .ei { font-size: 36px; margin-bottom: 8px; }
-  .empty p { font-size: 13px; }
+  .empty .ei { font-size: 36px; margin-bottom: 8px; } .empty p { font-size: 13px; }
 </style>
 </head>
 <body>
-
 <div id="autoSaveMsg">✔ 保存しました</div>
-
 <div id="dpOverlay">
   <div id="dpBox">
     <h3>日付を選択</h3>
@@ -194,43 +130,30 @@
     </div>
   </div>
 </div>
-
 <header>
   <h1>🌿 農場日誌</h1>
   <span class="date-badge" id="currentDate"></span>
 </header>
-
 <div class="tabs">
   <div class="tab active" id="tab-today"    onclick="switchTab('today')">🏠<br>今日</div>
   <div class="tab"        id="tab-cow"      onclick="switchTab('cow')">🐄<br>牛の記録</div>
   <div class="tab"        id="tab-farm"     onclick="switchTab('farm')">🌾<br>圃場・農機</div>
   <div class="tab"        id="tab-calendar" onclick="switchTab('calendar')">📆<br>カレンダー</div>
 </div>
-
 <main>
-
-  <!-- ═══ 今日のダッシュボード ═══ -->
   <div id="panel-today" class="panel active">
-
-    <!-- 注射・投薬の予定 -->
     <div class="today-section">
       <div class="today-section-title">💉 今日の予定（注射・投薬）</div>
       <div id="todaySchedList"></div>
     </div>
-
-    <!-- 圃場・農機のやること -->
     <div class="today-section">
       <div class="today-section-title">🌾 今日やること（圃場・農機）</div>
       <div id="todayFieldList"></div>
     </div>
-
-    <!-- 繁殖予定 -->
     <div class="today-section" id="todayReproSection" style="display:none;">
       <div class="today-section-title">📋 繁殖予定</div>
       <div id="todayReproList"></div>
     </div>
-
-    <!-- クイック追加 -->
     <div class="today-section-title" style="margin-top:8px;">✏️ 記録を追加</div>
     <div class="quick-add-row">
       <button class="quick-btn" id="qAddCow">🐄<br>牛の記録</button>
@@ -238,15 +161,11 @@
       <button class="quick-btn" id="qAddSched">💉<br>予定を追加</button>
     </div>
   </div>
-
-  <!-- ═══ 牛の記録 ═══ -->
   <div id="panel-cow" class="panel">
     <div class="sec-title">🐄 牛の記録 — <span id="cowDateLabel"></span></div>
     <div id="cowRecords"></div>
     <button class="btn-add" id="btnAddCow">＋ 記録を追加</button>
   </div>
-
-  <!-- ═══ 圃場・農機 ═══ -->
   <div id="panel-farm" class="panel">
     <div class="sec-title">🌾 圃場作業 — <span id="farmDateLabel"></span></div>
     <div id="fieldRecords"></div>
@@ -258,8 +177,6 @@
     <div class="field"><label>圃場を選択</label><select id="historyField"></select></div>
     <div class="card"><div id="historyTable"></div></div>
   </div>
-
-  <!-- ═══ カレンダー ═══ -->
   <div id="panel-calendar" class="panel">
     <div class="cal-nav">
       <button class="cal-nav-btn" id="calPrev">‹</button>
@@ -281,67 +198,53 @@
       <span class="cal-dot dot-field"></span>圃場・農機
     </div>
   </div>
-
 </main>
-
 <script>
-const PRE = 'farmDiary_';
-const SCHED_KEY = 'farmDiary_schedules';
-let currentDate = new Date(); currentDate.setHours(0,0,0,0);
-let calViewYear = currentDate.getFullYear();
-let calViewMonth = currentDate.getMonth();
-let dayData = {cow:[],field:[],machine:[]};
-let autoSaveTimer = null;
+const PRE='farmDiary_', SCHED_KEY='farmDiary_schedules';
+let currentDate=new Date(); currentDate.setHours(0,0,0,0);
+let calViewYear=currentDate.getFullYear(), calViewMonth=currentDate.getMonth();
+let dayData={cow:[],field:[],machine:[]};
+let autoSaveTimer=null;
 
-// ── Helpers ──
-function ldk(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function fmtJP(d){ const w=['日','月','火','水','木','金','土']; return `${d.getMonth()+1}/${d.getDate()}（${w[d.getDay()]}）`; }
-function fmtStr(s){ if(!s)return''; return fmtJP(new Date(s+'T00:00:00')); }
-function isToday(s){ return s===ldk(new Date()); }
-function isPast(s){ return s<ldk(new Date()); }
+function ldk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtJP(d){var w=['日','月','火','水','木','金','土'];return (d.getMonth()+1)+'/'+d.getDate()+'（'+w[d.getDay()]+'）';}
+function fmtStr(s){if(!s)return'';return fmtJP(new Date(s+'T00:00:00'));}
 
-// ── Autosave ──
 function autoSave(){
   clearTimeout(autoSaveTimer);
-  autoSaveTimer = setTimeout(()=>{
-    localStorage.setItem(PRE+ldk(currentDate), JSON.stringify(dayData));
-    renderCalendar();
-    renderTodayDash();
-    const m=document.getElementById('autoSaveMsg');
-    m.classList.add('show');
-    setTimeout(()=>m.classList.remove('show'),1500);
+  autoSaveTimer=setTimeout(function(){
+    localStorage.setItem(PRE+ldk(currentDate),JSON.stringify(dayData));
+    renderCalendar(); renderTodayDash();
+    var m=document.getElementById('autoSaveMsg');
+    m.classList.add('show'); setTimeout(function(){m.classList.remove('show');},1500);
   },600);
 }
 
-// ── Load day ──
 function loadDay(){
-  document.getElementById('currentDate').textContent = fmtJP(currentDate);
-  document.getElementById('cowDateLabel').textContent = fmtJP(currentDate);
-  document.getElementById('farmDateLabel').textContent = fmtJP(currentDate);
-  const raw=localStorage.getItem(PRE+ldk(currentDate));
+  document.getElementById('currentDate').textContent=fmtJP(currentDate);
+  document.getElementById('cowDateLabel').textContent=fmtJP(currentDate);
+  document.getElementById('farmDateLabel').textContent=fmtJP(currentDate);
+  var raw=localStorage.getItem(PRE+ldk(currentDate));
   dayData=raw?JSON.parse(raw):{cow:[],field:[],machine:[]};
   if(!dayData.cow)dayData.cow=[];
   if(!dayData.field)dayData.field=[];
   if(!dayData.machine)dayData.machine=[];
-  renderCow(); renderField(); renderMachine();
-  renderTodayDash(); renderCalendar();
+  renderCow(); renderField(); renderMachine(); renderTodayDash(); renderCalendar();
 }
 
-// ── Date picker ──
-document.getElementById('currentDate').addEventListener('click',()=>{
+document.getElementById('currentDate').addEventListener('click',function(){
   document.getElementById('dpInput').value=ldk(currentDate);
   document.getElementById('dpOverlay').classList.add('open');
 });
-document.getElementById('dpCancel').addEventListener('click',()=>document.getElementById('dpOverlay').classList.remove('open'));
-document.getElementById('dpOk').addEventListener('click',()=>{
-  const v=document.getElementById('dpInput').value;
+document.getElementById('dpCancel').addEventListener('click',function(){document.getElementById('dpOverlay').classList.remove('open');});
+document.getElementById('dpOk').addEventListener('click',function(){
+  var v=document.getElementById('dpInput').value;
   if(v){currentDate=new Date(v+'T00:00:00');loadDay();}
   document.getElementById('dpOverlay').classList.remove('open');
 });
 
-// ── Tabs ──
 function switchTab(name){
-  ['today','cow','farm','calendar'].forEach(n=>{
+  ['today','cow','farm','calendar'].forEach(function(n){
     document.getElementById('tab-'+n).classList.toggle('active',n===name);
     document.getElementById('panel-'+n).classList.toggle('active',n===name);
   });
@@ -349,17 +252,16 @@ function switchTab(name){
   if(name==='calendar')renderCalendar();
 }
 
-// ── Schedules ──
 function loadSchedules(){try{return JSON.parse(localStorage.getItem(SCHED_KEY)||'[]');}catch(e){return[];}}
-function saveSchedules(s){localStorage.setItem(SCHED_KEY,JSON.stringify(s)); renderTodayDash(); renderCalendar();}
+function saveSchedules(s){localStorage.setItem(SCHED_KEY,JSON.stringify(s));renderTodayDash();renderCalendar();}
 
 function completeSched(id){
-  const s=loadSchedules(), item=s.find(x=>x.id===id); if(!item)return;
+  var s=loadSchedules(), item=s.find(function(x){return x.id===id;});
+  if(!item)return;
   item.done=true; saveSchedules(s);
-  const label=item.type==='injection'?'注射':item.type==='medication'?'投薬':'処置';
-  const rec={id:Date.now(),type:'disease',earTag:item.earTag,quarters:[],treatment:label,drug:item.drug,outcome:'ongoing',symptom:`予定より：${label}`,dose:'',nextDate:'',memo:item.memo};
-  const tk=PRE+item.date;
-  let td={cow:[],field:[],machine:[]};
+  var label=item.type==='injection'?'注射':item.type==='medication'?'投薬':'処置';
+  var rec={id:Date.now(),type:'disease',earTag:item.earTag,quarters:[],treatment:label,drug:item.drug,outcome:'ongoing',symptom:'予定より：'+label,nextDate:'',memo:item.memo};
+  var tk=PRE+item.date, td={cow:[],field:[],machine:[]};
   try{td=JSON.parse(localStorage.getItem(tk)||'{}');if(!td.cow)td.cow=[];}catch(e){}
   td.cow.push(rec);
   localStorage.setItem(tk,JSON.stringify(td));
@@ -367,265 +269,224 @@ function completeSched(id){
   renderTodayDash();
 }
 
-// ── Today Dashboard ──
 function renderTodayDash(){
-  const todayStr=ldk(currentDate);
-  const scheds=loadSchedules();
-
-  // 注射・投薬予定
-  const todayScheds=scheds.filter(s=>!s.done&&s.date===todayStr);
-  const overdueScheds=scheds.filter(s=>!s.done&&s.date<todayStr);
-  const allUrgent=[...overdueScheds,...todayScheds];
-  const sl=document.getElementById('todaySchedList');
+  var todayStr=ldk(currentDate), scheds=loadSchedules();
+  var todayScheds=scheds.filter(function(s){return !s.done&&s.date===todayStr;});
+  var overdueScheds=scheds.filter(function(s){return !s.done&&s.date<todayStr;});
+  var allUrgent=overdueScheds.concat(todayScheds);
+  var sl=document.getElementById('todaySchedList');
   if(allUrgent.length){
-    sl.innerHTML=allUrgent.map(s=>{
-      const over=s.date<todayStr;
-      return `<div class="task-card" style="cursor:pointer;" data-sched-complete="${s.id}">
-        <div class="task-accent accent-plan"></div>
-        <div class="task-body">
-          <div class="task-meta">${over?'⚠ 期限超過 — '+fmtStr(s.date):'本日の予定'} · ${s.type==='injection'?'💉 注射':s.type==='medication'?'💊 投薬':'📌 その他'}</div>
-          <div class="task-main">${s.earTag?'耳標 '+s.earTag:'（耳標未設定）'}</div>
-          <div class="task-sub">${s.drug||''} ${s.memo?'— '+s.memo:''}</div>
-          <button class="task-done-btn" data-sched-complete="${s.id}">✔ 実施した・記録へ</button>
-        </div>
-      </div>`;
+    sl.innerHTML=allUrgent.map(function(s){
+      var over=s.date<todayStr;
+      var typeLabel=s.type==='injection'?'💉 注射':s.type==='medication'?'💊 投薬':'📌 その他';
+      return '<div class="task-card">'
+        +'<div class="task-accent accent-plan"></div>'
+        +'<div class="task-body">'
+        +'<div class="task-meta">'+(over?'⚠ 期限超過 — '+fmtStr(s.date):'本日の予定')+' · '+typeLabel+'</div>'
+        +'<div class="task-main">'+(s.earTag?'耳標 '+s.earTag:'（耳標未設定）')+'</div>'
+        +'<div class="task-sub">'+(s.drug||'')+' '+(s.memo?'— '+s.memo:'')+'</div>'
+        +'<button class="task-done-btn" data-sched-complete="'+s.id+'">✔ 実施した・記録へ</button>'
+        +'</div></div>';
     }).join('');
   } else {
-    sl.innerHTML=`<div class="today-empty"><div class="ei">✅</div>今日の注射・投薬の予定はありません</div>`;
+    sl.innerHTML='<div class="today-empty"><div class="ei">✅</div>今日の注射・投薬の予定はありません</div>';
   }
-
-  // 圃場・農機のやること（当日のフィールド記録 or 農機メンテ）
-  const fl=document.getElementById('todayFieldList');
-  const fieldItems=[...dayData.field,...dayData.machine];
+  var fl=document.getElementById('todayFieldList');
+  var fieldItems=dayData.field.concat(dayData.machine);
   if(fieldItems.length){
-    fl.innerHTML=fieldItems.map(r=>{
-      const isField=!!r.fieldName;
-      return `<div class="task-card">
-        <div class="task-accent ${isField?'accent-field':'accent-repro'}"></div>
-        <div class="task-body">
-          <div class="task-meta">${isField?'🌾 圃場作業':'🔧 農機メンテ'}</div>
-          <div class="task-main">${isField?(r.fieldName||'（圃場名未設定）'):(r.machineName||'（機械名未設定）')}</div>
-          <div class="task-sub">${isField?(r.workType||''):(r.work||'')} ${r.amount?r.amount+(r.unit||''):''}</div>
-        </div>
-        <div class="task-arrow" onclick="switchTab('farm')">›</div>
-      </div>`;
+    fl.innerHTML=fieldItems.map(function(r){
+      var isField=!!r.fieldName;
+      return '<div class="task-card">'
+        +'<div class="task-accent '+(isField?'accent-field':'accent-cow')+'"></div>'
+        +'<div class="task-body">'
+        +'<div class="task-meta">'+(isField?'🌾 圃場作業':'🔧 農機メンテ')+'</div>'
+        +'<div class="task-main">'+(isField?(r.fieldName||'（圃場名未設定）'):(r.machineName||'（機械名未設定）'))+'</div>'
+        +'<div class="task-sub">'+(isField?(r.workType||''):(r.work||''))+' '+(r.amount?r.amount+(r.unit||''):'')+'</div>'
+        +'</div>'
+        +'<div class="task-arrow" onclick="switchTab(\'farm\')">›</div>'
+        +'</div>';
     }).join('');
   } else {
-    fl.innerHTML=`<div class="today-empty"><div class="ei">📋</div>今日の圃場・農機記録はまだありません<br><span style="font-size:12px;margin-top:4px;display:block;">下の「圃場作業」ボタンから追加できます</span></div>`;
+    fl.innerHTML='<div class="today-empty"><div class="ei">📋</div>今日の圃場・農機記録はまだありません<br><span style="font-size:12px;margin-top:4px;display:block;">下の「圃場作業」ボタンから追加できます</span></div>';
   }
-
-  // 繁殖予定（dairy_reproから）
-  let cattle=null;
-  for(const k of['dairyRepro_cattle','repro_cattle','cattle']){
-    const v=localStorage.getItem(k); if(v){try{cattle=JSON.parse(v);break;}catch(e){}}
+  var cattle=null;
+  for(var i=0,keys=['dairyRepro_cattle','repro_cattle','cattle'];i<keys.length;i++){
+    var v=localStorage.getItem(keys[i]);if(v){try{cattle=JSON.parse(v);break;}catch(e){}}
   }
-  const reproSec=document.getElementById('todayReproSection');
-  const reproList=document.getElementById('todayReproList');
+  var reproSec=document.getElementById('todayReproSection');
+  var reproList=document.getElementById('todayReproList');
   if(cattle&&cattle.length){
-    const evts=[];
-    cattle.forEach(c=>{
+    var evts=[];
+    cattle.forEach(function(c){
       if(c.expectedDelivery===todayStr)evts.push({icon:'🐄',label:'分娩予定',tag:c.earTag});
       if(c.aiDate===todayStr)evts.push({icon:'💉',label:'授精予定',tag:c.earTag});
       if(c.pregCheckDate===todayStr)evts.push({icon:'🔍',label:'妊鑑予定',tag:c.earTag});
     });
     if(evts.length){
-      reproList.innerHTML=evts.map(e=>`<div class="task-card">
-        <div class="task-accent accent-repro"></div>
-        <div class="task-body">
-          <div class="task-meta">繁殖管理</div>
-          <div class="task-main">${e.icon} ${e.label}</div>
-          <div class="task-sub">耳標 ${e.tag}</div>
-        </div>
-      </div>`).join('');
+      reproList.innerHTML=evts.map(function(e){
+        return '<div class="task-card"><div class="task-accent accent-repro"></div><div class="task-body"><div class="task-meta">繁殖管理</div><div class="task-main">'+e.icon+' '+e.label+'</div><div class="task-sub">耳標 '+e.tag+'</div></div></div>';
+      }).join('');
       reproSec.style.display='block';
     } else reproSec.style.display='none';
   } else reproSec.style.display='none';
 }
 
-// 「実施した」ボタン委譲
-document.getElementById('todaySchedList').addEventListener('click',e=>{
-  const b=e.target.closest('[data-sched-complete]');
-  if(b){completeSched(Number(b.dataset.schedComplete));}
+document.getElementById('todaySchedList').addEventListener('click',function(e){
+  var b=e.target.closest('[data-sched-complete]');
+  if(b)completeSched(Number(b.dataset.schedComplete));
 });
-
-// クイック追加
-document.getElementById('qAddCow').addEventListener('click',()=>{switchTab('cow');addCow();});
-document.getElementById('qAddField').addEventListener('click',()=>{switchTab('farm');addField();});
-document.getElementById('qAddSched').addEventListener('click',()=>{addSchedQuick();});
-
-function addSchedQuick(){
-  const s=loadSchedules();
+document.getElementById('qAddCow').addEventListener('click',function(){switchTab('cow');addCow();});
+document.getElementById('qAddField').addEventListener('click',function(){switchTab('farm');addField();});
+document.getElementById('qAddSched').addEventListener('click',function(){
+  var s=loadSchedules();
   s.push({id:Date.now(),date:ldk(currentDate),earTag:'',type:'injection',drug:'',memo:'',done:false});
   saveSchedules(s);
-  switchTab('calendar'); // 予定はカレンダーパネルに直接ではなくダッシュボードに反映
-  switchTab('today');
-  alert('予定を追加しました。カレンダータブの「予定」から編集できます。');
-}
+  alert('予定を追加しました。内容はカレンダータブから確認・編集できます。');
+});
 
-// ── Calendar ──
-document.getElementById('calPrev').addEventListener('click',()=>{calViewMonth--;if(calViewMonth<0){calViewMonth=11;calViewYear--;}renderCalendar();});
-document.getElementById('calNext').addEventListener('click',()=>{calViewMonth++;if(calViewMonth>11){calViewMonth=0;calViewYear++;}renderCalendar();});
+document.getElementById('calPrev').addEventListener('click',function(){calViewMonth--;if(calViewMonth<0){calViewMonth=11;calViewYear--;}renderCalendar();});
+document.getElementById('calNext').addEventListener('click',function(){calViewMonth++;if(calViewMonth>11){calViewMonth=0;calViewYear++;}renderCalendar();});
 
 function getDayFlags(ds){
-  const raw=localStorage.getItem(PRE+ds);
-  let f={cow:false,field:false,machine:false};
-  if(raw){try{const d=JSON.parse(raw);f={cow:(d.cow||[]).length>0,field:(d.field||[]).length>0,machine:(d.machine||[]).length>0};}catch(e){}}
-  f.plan=loadSchedules().some(s=>!s.done&&s.date===ds);
+  var raw=localStorage.getItem(PRE+ds), f={cow:false,field:false,machine:false};
+  if(raw){try{var d=JSON.parse(raw);f={cow:(d.cow||[]).length>0,field:(d.field||[]).length>0,machine:(d.machine||[]).length>0};}catch(e){}}
+  f.plan=loadSchedules().some(function(s){return !s.done&&s.date===ds;});
   return f;
 }
 function renderCalendar(){
-  document.getElementById('calMonthLabel').textContent=`${calViewYear}年 ${calViewMonth+1}月`;
-  const todayStr=ldk(new Date()),selStr=ldk(currentDate);
-  const first=new Date(calViewYear,calViewMonth,1),last=new Date(calViewYear,calViewMonth+1,0),sdow=first.getDay();
-  let html='';
-  for(let i=0;i<sdow;i++){const d=new Date(calViewYear,calViewMonth,1-(sdow-i));html+=`<div class="cal-cell other-month"><div class="cal-num">${d.getDate()}</div></div>`;}
-  for(let day=1;day<=last.getDate();day++){
-    const d=new Date(calViewYear,calViewMonth,day),ds=ldk(d),dow=d.getDay(),f=getDayFlags(ds);
-    let cls='cal-cell';
-    if(ds===todayStr)cls+=' today';if(ds===selStr)cls+=' selected-day';
-    if(dow===0)cls+=' is-sun';if(dow===6)cls+=' is-sat';
-    let dots='';
+  document.getElementById('calMonthLabel').textContent=calViewYear+'年 '+(calViewMonth+1)+'月';
+  var todayStr=ldk(new Date()), selStr=ldk(currentDate);
+  var first=new Date(calViewYear,calViewMonth,1), last=new Date(calViewYear,calViewMonth+1,0), sdow=first.getDay();
+  var html='';
+  for(var i=0;i<sdow;i++){var d=new Date(calViewYear,calViewMonth,1-(sdow-i));html+='<div class="cal-cell other-month"><div class="cal-num">'+d.getDate()+'</div></div>';}
+  for(var day=1;day<=last.getDate();day++){
+    var d=new Date(calViewYear,calViewMonth,day), ds=ldk(d), dow=d.getDay(), f=getDayFlags(ds);
+    var cls='cal-cell';
+    if(ds===todayStr)cls+=' today'; if(ds===selStr)cls+=' selected-day';
+    if(dow===0)cls+=' is-sun'; if(dow===6)cls+=' is-sat';
+    var dots='';
     if(f.plan)dots+='<span class="cal-dot dot-plan"></span>';
     if(f.cow)dots+='<span class="cal-dot dot-cow"></span>';
     if(f.field||f.machine)dots+='<span class="cal-dot dot-field"></span>';
-    html+=`<div class="${cls}" data-date="${ds}"><div class="cal-num">${day}</div><div class="cal-dots">${dots}</div></div>`;
+    html+='<div class="'+cls+'" data-date="'+ds+'"><div class="cal-num">'+day+'</div><div class="cal-dots">'+dots+'</div></div>';
   }
-  const rem=(sdow+last.getDate())%7;
-  if(rem>0)for(let i=1;i<=7-rem;i++)html+=`<div class="cal-cell other-month"><div class="cal-num">${i}</div></div>`;
+  var rem=(sdow+last.getDate())%7;
+  if(rem>0)for(var i=1;i<=7-rem;i++)html+='<div class="cal-cell other-month"><div class="cal-num">'+i+'</div></div>';
   document.getElementById('calDays').innerHTML=html;
 }
-document.getElementById('calDays').addEventListener('click',e=>{
-  const cell=e.target.closest('[data-date]');if(!cell)return;
+document.getElementById('calDays').addEventListener('click',function(e){
+  var cell=e.target.closest('[data-date]');if(!cell)return;
   currentDate=new Date(cell.dataset.date+'T00:00:00');
-  calViewYear=currentDate.getFullYear();calViewMonth=currentDate.getMonth();
+  calViewYear=currentDate.getFullYear(); calViewMonth=currentDate.getMonth();
   loadDay(); switchTab('today');
 });
 
-// ── 牛の記録 ──
-const COW_TYPES=[{id:'mastitis',label:'🔴 乳房炎'},{id:'disease',label:'💊 疾病・処置'},{id:'injury',label:'🩹 外傷・その他'}];
+var COW_TYPES=[{id:'mastitis',label:'🔴 乳房炎'},{id:'disease',label:'💊 疾病・処置'},{id:'injury',label:'🩹 外傷・その他'}];
 function addCow(){dayData.cow.push({id:Date.now(),type:'mastitis',earTag:'',quarters:[],treatment:'',drug:'',outcome:'ongoing',symptom:'',nextDate:'',memo:''});autoSave();renderCow();}
-function removeCow(id){dayData.cow=dayData.cow.filter(r=>r.id!==id);autoSave();renderCow();}
-function updateCow(id,f,v){const r=dayData.cow.find(x=>x.id===id);if(r){r[f]=v;autoSave();}}
-function setCowType(id,t){const r=dayData.cow.find(x=>x.id===id);if(r){r.type=t;autoSave();renderCow();}}
-function toggleQ(id,q){const r=dayData.cow.find(x=>x.id===id);if(!r)return;const i=r.quarters.indexOf(q);if(i>=0)r.quarters.splice(i,1);else r.quarters.push(q);autoSave();renderCow();}
+function removeCow(id){dayData.cow=dayData.cow.filter(function(r){return r.id!==id;});autoSave();renderCow();}
+function updateCow(id,f,v){var r=dayData.cow.find(function(x){return x.id===id;});if(r){r[f]=v;autoSave();}}
+function setCowType(id,t){var r=dayData.cow.find(function(x){return x.id===id;});if(r){r.type=t;autoSave();renderCow();}}
+function toggleQ(id,q){var r=dayData.cow.find(function(x){return x.id===id;});if(!r)return;var i=r.quarters.indexOf(q);if(i>=0)r.quarters.splice(i,1);else r.quarters.push(q);autoSave();renderCow();}
 function renderCow(){
-  const el=document.getElementById('cowRecords');
+  var el=document.getElementById('cowRecords');
   if(!dayData.cow.length){el.innerHTML='';return;}
-  el.innerHTML=dayData.cow.map(r=>`
-    <div class="card" style="margin-bottom:10px;">
-      <div class="card-head"><span class="pill pill-cow">${COW_TYPES.find(t=>t.id===r.type)?.label||r.type}</span><button class="btn-del" data-del-cow="${r.id}">✕</button></div>
-      <div class="card-body">
-        <div class="field"><label>種別</label><div class="type-chips">${COW_TYPES.map(t=>`<button class="type-chip${r.type===t.id?' sel-cow':''}" data-cow-type="${r.id}|${t.id}">${t.label}</button>`).join('')}</div></div>
-        <div class="row2">
-          <div class="field"><label>耳標番号</label><input type="text" placeholder="例: 1234" value="${r.earTag}" data-cow-f="${r.id}|earTag"></div>
-          ${r.type==='mastitis'?`<div class="field"><label>患部</label><div class="quarter-grid">${['左前','右前','左後','右後'].map(q=>`<button class="quarter-btn${r.quarters.includes(q)?' selected':''}" data-quarter="${r.id}|${q}">${q}</button>`).join('')}</div></div>`:`<div class="field"><label>症状・病名</label><input type="text" placeholder="例: 起立不能" value="${r.symptom||''}" data-cow-f="${r.id}|symptom"></div>`}
-        </div>
-        <div class="row2">
-          <div class="field"><label>処置内容</label><input type="text" placeholder="例: 乳房内注入" value="${r.treatment}" data-cow-f="${r.id}|treatment"></div>
-          <div class="field"><label>使用薬品</label><input type="text" placeholder="例: オルベスコ" value="${r.drug}" data-cow-f="${r.id}|drug"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>経過・結果</label><select data-cow-f="${r.id}|outcome"><option value="ongoing" ${r.outcome==='ongoing'?'selected':''}>治療継続中</option><option value="cured" ${r.outcome==='cured'?'selected':''}>回復・終了</option><option value="discard" ${r.outcome==='discard'?'selected':''}>廃用判断</option></select></div>
-          <div class="field"><label>次回予定日</label><input type="date" value="${r.nextDate||''}" data-cow-f="${r.id}|nextDate"></div>
-        </div>
-      </div>
-    </div>`).join('');
+  el.innerHTML=dayData.cow.map(function(r){
+    var typeLabel=COW_TYPES.find(function(t){return t.id===r.type;}); typeLabel=typeLabel?typeLabel.label:r.type;
+    var quarterHtml=r.type==='mastitis'
+      ?'<div class="field"><label>患部</label><div class="quarter-grid">'+['左前','右前','左後','右後'].map(function(q){return '<button class="quarter-btn'+(r.quarters.includes(q)?' selected':'')+'" data-quarter="'+r.id+'|'+q+'">'+q+'</button>';}).join('')+'</div></div>'
+      :'<div class="field"><label>症状・病名</label><input type="text" placeholder="例: 起立不能" value="'+(r.symptom||'')+'" data-cow-f="'+r.id+'|symptom"></div>';
+    return '<div class="card" style="margin-bottom:10px;">'
+      +'<div class="card-head"><span class="pill pill-cow">'+typeLabel+'</span><button class="btn-del" data-del-cow="'+r.id+'">✕</button></div>'
+      +'<div class="card-body">'
+      +'<div class="field"><label>種別</label><div class="type-chips">'+COW_TYPES.map(function(t){return '<button class="type-chip'+(r.type===t.id?' sel-cow':'')+'" data-cow-type="'+r.id+'|'+t.id+'">'+t.label+'</button>';}).join('')+'</div></div>'
+      +'<div class="row2"><div class="field"><label>耳標番号</label><input type="text" placeholder="例: 1234" value="'+r.earTag+'" data-cow-f="'+r.id+'|earTag"></div>'+quarterHtml+'</div>'
+      +'<div class="row2"><div class="field"><label>処置内容</label><input type="text" placeholder="例: 乳房内注入" value="'+r.treatment+'" data-cow-f="'+r.id+'|treatment"></div><div class="field"><label>使用薬品</label><input type="text" placeholder="例: オルベスコ" value="'+r.drug+'" data-cow-f="'+r.id+'|drug"></div></div>'
+      +'<div class="row2"><div class="field"><label>経過・結果</label><select data-cow-f="'+r.id+'|outcome"><option value="ongoing"'+(r.outcome==='ongoing'?' selected':'')+'>治療継続中</option><option value="cured"'+(r.outcome==='cured'?' selected':'')+'>回復・終了</option><option value="discard"'+(r.outcome==='discard'?' selected':'')+'>廃用判断</option></select></div><div class="field"><label>次回予定日</label><input type="date" value="'+(r.nextDate||'')+'" data-cow-f="'+r.id+'|nextDate"></div></div>'
+      +'</div></div>';
+  }).join('');
 }
-document.getElementById('cowRecords').addEventListener('click',e=>{
-  const d=e.target.closest('[data-del-cow]');if(d){removeCow(Number(d.dataset.delCow));return;}
-  const t=e.target.closest('[data-cow-type]');if(t){const[id,tp]=t.dataset.cowType.split('|');setCowType(Number(id),tp);return;}
-  const q=e.target.closest('[data-quarter]');if(q){const[id,qt]=q.dataset.quarter.split('|');toggleQ(Number(id),qt);return;}
+document.getElementById('cowRecords').addEventListener('click',function(e){
+  var d=e.target.closest('[data-del-cow]');if(d){removeCow(Number(d.dataset.delCow));return;}
+  var t=e.target.closest('[data-cow-type]');if(t){var p=t.dataset.cowType.split('|');setCowType(Number(p[0]),p[1]);return;}
+  var q=e.target.closest('[data-quarter]');if(q){var p=q.dataset.quarter.split('|');toggleQ(Number(p[0]),p[1]);return;}
 });
-document.getElementById('cowRecords').addEventListener('input',e=>{const f=e.target.dataset.cowF;if(!f)return;const[id,field]=f.split('|');updateCow(Number(id),field,e.target.value);});
-document.getElementById('cowRecords').addEventListener('change',e=>{const f=e.target.dataset.cowF;if(!f)return;const[id,field]=f.split('|');updateCow(Number(id),field,e.target.value);});
+document.getElementById('cowRecords').addEventListener('input',function(e){var f=e.target.dataset.cowF;if(!f)return;var p=f.split('|');updateCow(Number(p[0]),p[1],e.target.value);});
+document.getElementById('cowRecords').addEventListener('change',function(e){var f=e.target.dataset.cowF;if(!f)return;var p=f.split('|');updateCow(Number(p[0]),p[1],e.target.value);});
 document.getElementById('btnAddCow').addEventListener('click',addCow);
 
-// ── 圃場 ──
-const WORK_TYPES=['施肥','スラリー散布','播種','除草','1番草収穫開始','1番草収穫終了','2番草収穫開始','2番草収穫終了','3番草収穫開始','3番草収穫終了','その他'];
+var WORK_TYPES=['施肥','スラリー散布','播種','除草','1番草収穫開始','1番草収穫終了','2番草収穫開始','2番草収穫終了','3番草収穫開始','3番草収穫終了','その他'];
 function addField(){dayData.field.push({id:Date.now(),fieldName:'',workType:'',amount:'',unit:'',memo:''});autoSave();renderField();}
-function removeField(id){dayData.field=dayData.field.filter(r=>r.id!==id);autoSave();renderField();}
-function updateField(id,f,v){const r=dayData.field.find(x=>x.id===id);if(r){r[f]=v;autoSave();}}
-function setWorkType(id,wt){const r=dayData.field.find(x=>x.id===id);if(r){r.workType=wt;autoSave();renderField();}}
+function removeField(id){dayData.field=dayData.field.filter(function(r){return r.id!==id;});autoSave();renderField();}
+function updateField(id,f,v){var r=dayData.field.find(function(x){return x.id===id;});if(r){r[f]=v;autoSave();}}
+function setWorkType(id,wt){var r=dayData.field.find(function(x){return x.id===id;});if(r){r.workType=wt;autoSave();renderField();}}
 function renderField(){
-  const el=document.getElementById('fieldRecords');
+  var el=document.getElementById('fieldRecords');
   if(!dayData.field.length){el.innerHTML='';return;}
-  el.innerHTML=dayData.field.map(r=>`
-    <div class="card" style="margin-bottom:10px;">
-      <div class="card-head"><span class="pill pill-field">🌾 圃場作業</span><button class="btn-del" data-del-field="${r.id}">✕</button></div>
-      <div class="card-body">
-        <div class="field"><label>圃場名</label><input type="text" placeholder="例: A圃場" value="${r.fieldName}" data-field-f="${r.id}|fieldName"></div>
-        <div class="field"><label>作業種別</label><div class="work-chips">${WORK_TYPES.map(wt=>`<button class="work-chip${r.workType===wt?' selected':''}" data-work-type="${r.id}|${wt}">${wt}</button>`).join('')}</div></div>
-        <div class="row2">
-          <div class="field"><label>数量</label><input type="number" placeholder="500" value="${r.amount}" data-field-f="${r.id}|amount"></div>
-          <div class="field"><label>単位</label><input type="text" placeholder="kg / t / ha" value="${r.unit}" data-field-f="${r.id}|unit"></div>
-        </div>
-        <div class="field"><label>メモ</label><textarea placeholder="天候・状況など" rows="2" data-field-f="${r.id}|memo">${r.memo}</textarea></div>
-      </div>
-    </div>`).join('');
+  el.innerHTML=dayData.field.map(function(r){
+    return '<div class="card" style="margin-bottom:10px;">'
+      +'<div class="card-head"><span class="pill pill-field">🌾 圃場作業</span><button class="btn-del" data-del-field="'+r.id+'">✕</button></div>'
+      +'<div class="card-body">'
+      +'<div class="field"><label>圃場名</label><input type="text" placeholder="例: A圃場" value="'+r.fieldName+'" data-field-f="'+r.id+'|fieldName"></div>'
+      +'<div class="field"><label>作業種別</label><div class="work-chips">'+WORK_TYPES.map(function(wt){return '<button class="work-chip'+(r.workType===wt?' selected':'')+'" data-work-type="'+r.id+'|'+wt+'">'+wt+'</button>';}).join('')+'</div></div>'
+      +'<div class="row2"><div class="field"><label>数量</label><input type="number" placeholder="500" value="'+r.amount+'" data-field-f="'+r.id+'|amount"></div><div class="field"><label>単位</label><input type="text" placeholder="kg/t/ha" value="'+r.unit+'" data-field-f="'+r.id+'|unit"></div></div>'
+      +'<div class="field"><label>メモ</label><textarea placeholder="天候・状況など" rows="2" data-field-f="'+r.id+'|memo">'+r.memo+'</textarea></div>'
+      +'</div></div>';
+  }).join('');
 }
-document.getElementById('fieldRecords').addEventListener('click',e=>{
-  const d=e.target.closest('[data-del-field]');if(d){removeField(Number(d.dataset.delField));return;}
-  const w=e.target.closest('[data-work-type]');if(w){const[id,wt]=w.dataset.workType.split('|');setWorkType(Number(id),wt);return;}
+document.getElementById('fieldRecords').addEventListener('click',function(e){
+  var d=e.target.closest('[data-del-field]');if(d){removeField(Number(d.dataset.delField));return;}
+  var w=e.target.closest('[data-work-type]');if(w){var p=w.dataset.workType.split('|');setWorkType(Number(p[0]),p[1]);return;}
 });
-document.getElementById('fieldRecords').addEventListener('input',e=>{const f=e.target.dataset.fieldF;if(!f)return;const[id,field]=f.split('|');updateField(Number(id),field,e.target.value);});
+document.getElementById('fieldRecords').addEventListener('input',function(e){var f=e.target.dataset.fieldF;if(!f)return;var p=f.split('|');updateField(Number(p[0]),p[1],e.target.value);});
 document.getElementById('btnAddField').addEventListener('click',addField);
 
-// ── 農機 ──
 function addMachine(){dayData.machine.push({id:Date.now(),machineName:'',work:'',abnormal:'none',nextDate:'',memo:''});autoSave();renderMachine();}
-function removeMachine(id){dayData.machine=dayData.machine.filter(r=>r.id!==id);autoSave();renderMachine();}
-function updateMachine(id,f,v){const r=dayData.machine.find(x=>x.id===id);if(r){r[f]=v;autoSave();}}
+function removeMachine(id){dayData.machine=dayData.machine.filter(function(r){return r.id!==id;});autoSave();renderMachine();}
+function updateMachine(id,f,v){var r=dayData.machine.find(function(x){return x.id===id;});if(r){r[f]=v;autoSave();}}
 function renderMachine(){
-  const el=document.getElementById('machineRecords');
+  var el=document.getElementById('machineRecords');
   if(!dayData.machine.length){el.innerHTML='';return;}
-  el.innerHTML=dayData.machine.map(r=>`
-    <div class="card" style="margin-bottom:10px;">
-      <div class="card-head"><span class="pill pill-machine">🔧 農機メンテ</span><button class="btn-del" data-del-machine="${r.id}">✕</button></div>
-      <div class="card-body">
-        <div class="row2">
-          <div class="field"><label>機械名</label><input type="text" placeholder="例: TMRミキサー" value="${r.machineName}" data-machine-f="${r.id}|machineName"></div>
-          <div class="field"><label>作業内容</label><input type="text" placeholder="例: オイル交換" value="${r.work}" data-machine-f="${r.id}|work"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>異常の有無</label><select data-machine-f="${r.id}|abnormal"><option value="none" ${r.abnormal==='none'?'selected':''}>なし</option><option value="minor" ${r.abnormal==='minor'?'selected':''}>軽微あり</option><option value="serious" ${r.abnormal==='serious'?'selected':''}>要修理</option></select></div>
-          <div class="field"><label>次回点検日</label><input type="date" value="${r.nextDate}" data-machine-f="${r.id}|nextDate"></div>
-        </div>
-        <div class="field"><label>メモ</label><textarea placeholder="詳細など" rows="2" data-machine-f="${r.id}|memo">${r.memo}</textarea></div>
-      </div>
-    </div>`).join('');
+  el.innerHTML=dayData.machine.map(function(r){
+    return '<div class="card" style="margin-bottom:10px;">'
+      +'<div class="card-head"><span class="pill" style="background:#EDE8E0;color:#4A3C28;">🔧 農機メンテ</span><button class="btn-del" data-del-machine="'+r.id+'">✕</button></div>'
+      +'<div class="card-body">'
+      +'<div class="row2"><div class="field"><label>機械名</label><input type="text" placeholder="例: TMRミキサー" value="'+r.machineName+'" data-machine-f="'+r.id+'|machineName"></div><div class="field"><label>作業内容</label><input type="text" placeholder="例: オイル交換" value="'+r.work+'" data-machine-f="'+r.id+'|work"></div></div>'
+      +'<div class="row2"><div class="field"><label>異常の有無</label><select data-machine-f="'+r.id+'|abnormal"><option value="none"'+(r.abnormal==='none'?' selected':'')+'>なし</option><option value="minor"'+(r.abnormal==='minor'?' selected':'')+'>軽微あり</option><option value="serious"'+(r.abnormal==='serious'?' selected':'')+'>要修理</option></select></div><div class="field"><label>次回点検日</label><input type="date" value="'+r.nextDate+'" data-machine-f="'+r.id+'|nextDate"></div></div>'
+      +'<div class="field"><label>メモ</label><textarea placeholder="詳細など" rows="2" data-machine-f="'+r.id+'|memo">'+r.memo+'</textarea></div>'
+      +'</div></div>';
+  }).join('');
 }
-document.getElementById('machineRecords').addEventListener('click',e=>{const d=e.target.closest('[data-del-machine]');if(d){removeMachine(Number(d.dataset.delMachine));return;}});
-document.getElementById('machineRecords').addEventListener('input',e=>{const f=e.target.dataset.machineF;if(!f)return;const[id,field]=f.split('|');updateMachine(Number(id),field,e.target.value);});
-document.getElementById('machineRecords').addEventListener('change',e=>{const f=e.target.dataset.machineF;if(!f)return;const[id,field]=f.split('|');updateMachine(Number(id),field,e.target.value);});
+document.getElementById('machineRecords').addEventListener('click',function(e){var d=e.target.closest('[data-del-machine]');if(d){removeMachine(Number(d.dataset.delMachine));}});
+document.getElementById('machineRecords').addEventListener('input',function(e){var f=e.target.dataset.machineF;if(!f)return;var p=f.split('|');updateMachine(Number(p[0]),p[1],e.target.value);});
+document.getElementById('machineRecords').addEventListener('change',function(e){var f=e.target.dataset.machineF;if(!f)return;var p=f.split('|');updateMachine(Number(p[0]),p[1],e.target.value);});
 document.getElementById('btnAddMachine').addEventListener('click',addMachine);
 
-// ── 年次比較 ──
 function getAllFieldRecs(){
-  const result=[];
-  for(let i=0;i<localStorage.length;i++){
-    const k=localStorage.key(i);
+  var result=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
     if(!k.startsWith(PRE)||k===SCHED_KEY)continue;
-    const date=k.replace(PRE,'');
+    var date=k.replace(PRE,'');
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;
-    try{const d=JSON.parse(localStorage.getItem(k));(d.field||[]).forEach(r=>result.push({date,...r}));}catch(e){}
+    try{var d=JSON.parse(localStorage.getItem(k));(d.field||[]).forEach(function(r){result.push(Object.assign({date:date},r));});}catch(e){}
   }
-  return result.sort((a,b)=>a.date.localeCompare(b.date));
+  return result.sort(function(a,b){return a.date.localeCompare(b.date);});
 }
 function renderHistory(){
-  const all=getAllFieldRecs();
-  const names=[...new Set(all.map(r=>r.fieldName).filter(Boolean))].sort();
-  const sel=document.getElementById('historyField'),cur=sel.value;
-  sel.innerHTML='<option value="">（すべて）</option>'+names.map(f=>`<option value="${f}"${f===cur?' selected':''}>${f}</option>`).join('');
-  const filtered=cur?all.filter(r=>r.fieldName===cur):all;
-  const el=document.getElementById('historyTable');
+  var all=getAllFieldRecs();
+  var names=[...new Set(all.map(function(r){return r.fieldName;}).filter(Boolean))].sort();
+  var sel=document.getElementById('historyField'), cur=sel.value;
+  sel.innerHTML='<option value="">（すべて）</option>'+names.map(function(f){return '<option value="'+f+'"'+(f===cur?' selected':'')+'>'+f+'</option>';}).join('');
+  var filtered=cur?all.filter(function(r){return r.fieldName===cur;}):all;
+  var el=document.getElementById('historyTable');
   if(!filtered.length){el.innerHTML='<div class="empty"><div class="ei">📋</div><p>記録がありません</p></div>';return;}
-  const years=[...new Set(filtered.map(r=>r.date.slice(0,4)))].sort().reverse();
-  const groups={};
-  filtered.forEach(r=>{const gk=`${r.fieldName}｜${r.workType}`;if(!groups[gk])groups[gk]=[];groups[gk].push(r);});
-  el.innerHTML=`<table class="compare-table"><thead><tr><th>圃場・作業</th>${years.map(y=>`<th>${y}年</th>`).join('')}</tr></thead><tbody>${Object.entries(groups).map(([gk,recs])=>`<tr><td>${gk}</td>${years.map(y=>{const yr=recs.filter(r=>r.date.startsWith(y));return`<td>${yr.map(r=>`<div>${r.date.slice(5)} ${r.amount?r.amount+(r.unit||''):''}</div>`).join('')||'—'}</td>`;}).join('')}</tr>`).join('')}</tbody></table>`;
+  var years=[...new Set(filtered.map(function(r){return r.date.slice(0,4);}))].sort().reverse();
+  var groups={};
+  filtered.forEach(function(r){var gk=r.fieldName+'｜'+r.workType;if(!groups[gk])groups[gk]=[];groups[gk].push(r);});
+  el.innerHTML='<table class="compare-table"><thead><tr><th>圃場・作業</th>'+years.map(function(y){return '<th>'+y+'年</th>';}).join('')+'</tr></thead><tbody>'+Object.entries(groups).map(function(e){var gk=e[0],recs=e[1];return '<tr><td>'+gk+'</td>'+years.map(function(y){var yr=recs.filter(function(r){return r.date.startsWith(y);});return '<td>'+( yr.map(function(r){return '<div>'+r.date.slice(5)+' '+(r.amount?r.amount+(r.unit||''):'')+'</div>';}).join('')||'—')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
 }
 document.getElementById('historyField').addEventListener('change',renderHistory);
 
-// ── Init ──
 loadDay();
 </script>
 </body>
