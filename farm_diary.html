@@ -309,25 +309,47 @@ function renderTodayDash(){
   } else {
     fl.innerHTML='<div class="today-empty"><div class="ei">📋</div>今日の圃場・農機記録はまだありません<br><span style="font-size:12px;margin-top:4px;display:block;">下の「圃場作業」ボタンから追加できます</span></div>';
   }
-  var cattle=null;
-  for(var i=0,keys=['dairyRepro_cattle','repro_cattle','cattle'];i<keys.length;i++){
-    var v=localStorage.getItem(keys[i]);if(v){try{cattle=JSON.parse(v);break;}catch(e){}}
-  }
   var reproSec=document.getElementById('todayReproSection');
   var reproList=document.getElementById('todayReproList');
-  if(cattle&&cattle.length){
-    var evts=[];
-    cattle.forEach(function(c){
-      if(c.expectedDelivery===todayStr)evts.push({icon:'🐄',label:'分娩予定',tag:c.earTag});
-      if(c.aiDate===todayStr)evts.push({icon:'💉',label:'授精予定',tag:c.earTag});
-      if(c.pregCheckDate===todayStr)evts.push({icon:'🔍',label:'妊鑑予定',tag:c.earTag});
-    });
-    if(evts.length){
-      reproList.innerHTML=evts.map(function(e){
-        return '<div class="task-card"><div class="task-accent accent-repro"></div><div class="task-body"><div class="task-meta">繁殖管理</div><div class="task-main">'+e.icon+' '+e.label+'</div><div class="task-sub">耳標 '+e.tag+'</div></div></div>';
-      }).join('');
-      reproSec.style.display='block';
-    } else reproSec.style.display='none';
+  var evts=[];
+  try {
+    var reproRaw=localStorage.getItem('dairy_repro_v2');
+    if(reproRaw){
+      var reproData=JSON.parse(reproRaw);
+      var cattle=reproData.cattle||[];
+      var events=reproData.events||[];
+      // 牛マップ作成（cattleId→牛情報）
+      var cowMap={};
+      cattle.forEach(function(c){cowMap[c.id]=c;});
+      // 各牛の最終授精・妊鑑・分娩予定をチェック
+      cattle.forEach(function(c){
+        var cevs=events.filter(function(e){return Number(e.cattleId)===Number(c.id);})
+                       .sort(function(a,b){return b.date.localeCompare(a.date);});
+        // 今日の種付け
+        var aiToday=cevs.find(function(e){return e.type==='種付け'&&e.date===todayStr;});
+        if(aiToday) evts.push({icon:'💉',label:'種付け',name:c.name,num:c.number});
+        // 今日の妊娠鑑定
+        var mkToday=cevs.find(function(e){return e.type==='妊娠鑑定'&&e.date===todayStr;});
+        if(mkToday) evts.push({icon:'🔍',label:'妊娠鑑定',name:c.name,num:c.number});
+        // 今日のPAG検査
+        var pagToday=cevs.find(function(e){return e.type==='PAG検査'&&e.date===todayStr;});
+        if(pagToday) evts.push({icon:'🧪',label:'PAG検査',name:c.name,num:c.number});
+        // 分娩予定日（最終授精+285日）を計算
+        var lastInsem=cevs.find(function(e){return e.type==='種付け';});
+        if(lastInsem){
+          var insDate=new Date(lastInsem.date+'T00:00:00');
+          insDate.setDate(insDate.getDate()+285);
+          var calvStr=insDate.getFullYear()+'-'+String(insDate.getMonth()+1).padStart(2,'0')+'-'+String(insDate.getDate()).padStart(2,'0');
+          if(calvStr===todayStr) evts.push({icon:'🐄',label:'分娩予定',name:c.name,num:c.number});
+        }
+      });
+    }
+  } catch(e){}
+  if(evts.length){
+    reproList.innerHTML=evts.map(function(e){
+      return '<div class="task-card"><div class="task-accent accent-repro"></div><div class="task-body"><div class="task-meta">繁殖管理 · '+e.icon+' '+e.label+'</div><div class="task-main">'+(e.name||'')+'</div><div class="task-sub">耳標 '+(e.num||'')+'</div></div></div>';
+    }).join('');
+    reproSec.style.display='block';
   } else reproSec.style.display='none';
 }
 
