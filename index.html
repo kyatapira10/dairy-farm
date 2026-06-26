@@ -647,7 +647,7 @@ const App={
           </div>
           <div style="font-size:10px;color:#7A9AB0;margin-top:2px">授精後28日目以降・妊鑑未確定</div>
         </div>
-        <button onclick="App.copyPagCheck()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
+        <button id="pag-copy-btn" onclick="App.copyPagCheck()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
       </div>`;
 
     if(targets.length===0){
@@ -674,7 +674,7 @@ const App={
   },
 
   copyPagCheck(){
-    const btn=qs('[data-lines]');
+    const btn=qs('#pag-copy-btn');
     if(!btn) return;
     const text=btn.getAttribute('data-lines');
     if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('コピーしました'));
@@ -732,7 +732,7 @@ const App={
           </div>
           <div style="font-size:10px;color:#7A9AB0;margin-top:2px">分娩後55日目 ${tp1.length}頭　／　授精後18日目 ${tp2.length}頭</div>
         </div>
-        <button onclick="App.copyTailPaint()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
+        <button id="tailpaint-copy-btn" onclick="App.copyTailPaint()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
       </div>`;
 
     if(pending.length===0 && done.length===0){
@@ -769,7 +769,7 @@ const App={
     qs('#tailpaint-list').innerHTML=html;
   },
   copyTailPaint(){
-    const btn=qs('[data-lines]');
+    const btn=qs('#tailpaint-copy-btn');
     if(!btn) return;
     const text=btn.getAttribute('data-lines').replace(/&#10;/g,'\n');
     if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('コピーしました'));
@@ -806,7 +806,7 @@ const App={
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div><div style="font-size:13px;font-weight:800;color:#1B3A5C">🩺 検診対象牛　<span style="font-size:20px;font-weight:900;color:#C0626A">${tagged.length}頭</span></div>
         <div style="font-size:10px;color:${C.muted};margin-top:2px">分娩後70日未授精${c1.length}頭／授精後60日未妊鑑${c2.length}頭／未経産15ヶ月超${c3.length}頭／PAG陰性${c4.length}頭</div></div>
-        <button onclick="App.copyKenshin()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
+        <button id="kenshin-copy-btn" onclick="App.copyKenshin()" data-lines="${esc(printLines)}" style="background:#EEF2F7;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1B3A5C">📋 コピー</button>
       </div>`;
     tagged.forEach((c,i)=>{
       const sub=c.virgin?`未経産　月齢${mage(c.code)||'-'}ヶ月`:[c.dsc!=null?`分娩後${c.dsc}日`:'',c.insem>0?`授精${c.insem}回`:'',c.dsi!=null?`最終授精後${c.dsi}日`:''].filter(Boolean).join('　');
@@ -821,7 +821,7 @@ const App={
   },
 
   copyKenshin(){
-    const btn=qs('[data-lines]');
+    const btn=qs('#kenshin-copy-btn');
     if(!btn) return;
     const text=btn.getAttribute('data-lines').replace(/&#10;/g,'\n');
     if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('コピーしました'));
