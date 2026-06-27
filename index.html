@@ -1600,7 +1600,7 @@ const App={
       // PAG検査イベント追加
       if(r.PAG && r.最終授精日){
         const idate=r.最終授精日.replace(/\//g,'-');
-        const pdate=addD(idate,60);
+        const pdate=addD(idate,30);
         const isPlus=r.PAG.includes('＋');
         maxId++;
         STATE.events.push({id:maxId,cattleId:cid,date:pdate,type:'PAG検査',
