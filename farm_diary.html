@@ -132,7 +132,11 @@
 </div>
 <header>
   <h1>🌿 農場日誌</h1>
-  <span class="date-badge" id="currentDate"></span>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <button onclick="shiftDay(-1)" style="background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+    <span class="date-badge" id="currentDate"></span>
+    <button onclick="shiftDay(1)" style="background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+  </div>
 </header>
 <div class="tabs">
   <div class="tab active" id="tab-today"    onclick="switchTab('today')">🏠<br>今日</div>
@@ -218,6 +222,11 @@ function autoSave(){
     var m=document.getElementById('autoSaveMsg');
     m.classList.add('show'); setTimeout(function(){m.classList.remove('show');},1500);
   },600);
+}
+
+function shiftDay(n){
+  currentDate.setDate(currentDate.getDate()+n);
+  loadDay();
 }
 
 function loadDay(){
