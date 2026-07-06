@@ -160,7 +160,7 @@ input,select,textarea,button{font-family:inherit}
 
 /* ── 定数 ── */
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
-const TODAY_STR = TODAY.toISOString().slice(0,10);
+const TODAY_STR = TODAY.getFullYear()+'-'+String(TODAY.getMonth()+1).padStart(2,'0')+'-'+String(TODAY.getDate()).padStart(2,'0');
 const C = {
   navy:'#1B3A5C',blue:'#2E5F8A',sky:'#4A90B8',mint:'#52B788',
   gold:'#B7902A',rose:'#C0626A',warn:'#D4622A',
