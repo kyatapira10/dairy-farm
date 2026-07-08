@@ -711,10 +711,10 @@ const App={
         .filter(k=>k.startsWith('tp_done_'))
         .map(k=>k.replace('tp_done_',''))
     );
-    // 条件1: 分娩後ちょうど55日目（確認しなければ翌日以降も表示）
-    const tp1=D.filter(c=>c.preg!=='positive'&&!c.virgin&&c.dsc!=null&&c.dsc===55&&c.insem===0&&!tpDoneToday.has(c.code));
-    // 条件2: 授精後ちょうど18日目（確認しなければ翌日以降も表示）
-    const tp2=D.filter(c=>c.preg!=='positive'&&c.dsi!=null&&c.dsi===18&&c.insem>0&&!tpDoneToday.has(c.code));
+    // 条件1: 分娩後55日目以降・未授精（確認済みを押すまで表示し続ける）
+    const tp1=D.filter(c=>c.preg!=='positive'&&!c.virgin&&c.dsc!=null&&c.dsc>=55&&c.insem===0&&!tpDoneToday.has(c.code));
+    // 条件2: 授精後18日目以降（確認済みを押すまで表示し続ける）
+    const tp2=D.filter(c=>c.preg!=='positive'&&c.dsi!=null&&c.dsi>=18&&c.insem>0&&!tpDoneToday.has(c.code));
     const allCodes=new Set(); const tagged=[];
     tp1.forEach(c=>{ if(!allCodes.has(c.code)){allCodes.add(c.code);tagged.push({...c,label:'分娩後55日目',color:'#2E7D32',bg:'#E8F5E9'});}});
     tp2.forEach(c=>{ if(!allCodes.has(c.code)){allCodes.add(c.code);tagged.push({...c,label:'授精後18日目',color:'#1565C0',bg:'#E3F2FD'});}});
