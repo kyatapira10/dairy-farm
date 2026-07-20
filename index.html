@@ -1371,6 +1371,15 @@ const App={
               <button id="res-minus" onclick="App.setRes('－')" style="flex:1;padding:14px;border-radius:10px;border:2px solid #ddd;background:#fff;font-size:20px;font-weight:900;cursor:pointer;color:#C62828">－ 陰性</button>
             </div>
             <input type="hidden" id="f-res" value="">
+            <div id="modal-calf-wrap" style="display:none;margin-top:10px">
+              <div style="font-size:12px;color:#7B1FA2;margin-bottom:6px;font-weight:700">子牛の種別</div>
+              <div style="display:flex;gap:8px">
+                <button type="button" id="modal-calf-f1" onclick="App.selectModalCalfType('f1')"
+                  style="flex:1;padding:10px;border:2px solid #DEE6EF;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#555">F1</button>
+                <button type="button" id="modal-calf-hol" onclick="App.selectModalCalfType('hol')"
+                  style="flex:1;padding:10px;border:2px solid #DEE6EF;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#555">ホル♀</button>
+              </div>
+            </div>
           </div>
           <div class="finput"><label>日付</label><input id="f-evdate" type="date" value="${TODAY_STR}"></div>
           <div class="finput"><label id="f-det-label">内容（任意）</label><textarea id="f-evdet" rows="3" placeholder="処置内容・精液番号など"></textarea></div>
@@ -1403,6 +1412,12 @@ const App={
 
   setRes(r){
     qs('#f-res').value=r;
+    const calfWrap=qs('#modal-calf-wrap');
+    if(calfWrap) calfWrap.style.display=(r==='＋'&&qs('#f-evtype').value==='妊娠鑑定'?'block':'none');
+    window._modalCalfType=null;
+    const mf1=qs('#modal-calf-f1'); const mhol=qs('#modal-calf-hol');
+    if(mf1){mf1.style.background='#fff';mf1.style.color='#555';mf1.style.borderColor='#DEE6EF';}
+    if(mhol){mhol.style.background='#fff';mhol.style.color='#555';mhol.style.borderColor='#DEE6EF';}
     const ip=r==='＋';
     qs('#res-plus').style.cssText=`flex:1;padding:14px;border-radius:10px;border:2px solid ${ip?'#2E7D32':'#ddd'};background:${ip?'#E8F5E9':'#fff'};font-size:20px;font-weight:900;cursor:pointer;color:#2E7D32`;
     qs('#res-minus').style.cssText=`flex:1;padding:14px;border-radius:10px;border:2px solid ${!ip?'#C62828':'#ddd'};background:${!ip?'#FFEBEE':'#fff'};font-size:20px;font-weight:900;cursor:pointer;color:#C62828`;
@@ -1412,12 +1427,27 @@ const App={
     }
   },
 
+  selectModalCalfType(type){
+    window._modalCalfType=type;
+    const f1=qs('#modal-calf-f1'); const hol=qs('#modal-calf-hol');
+    if(type==='f1'){
+      if(f1){f1.style.background='#E65100';f1.style.color='#fff';f1.style.borderColor='#E65100';}
+      if(hol){hol.style.background='#fff';hol.style.color='#555';hol.style.borderColor='#DEE6EF';}
+    } else {
+      if(hol){hol.style.background='#1565C0';hol.style.color='#fff';hol.style.borderColor='#1565C0';}
+      if(f1){f1.style.background='#fff';f1.style.color='#555';f1.style.borderColor='#DEE6EF';}
+    }
+  },
+
   saveEvent(cattleId){
     const type=qs('#f-evtype').value;
     if(type==='妊娠鑑定'||type==='PAG検査'){
       if(!qs('#f-res').value){showToast('結果（＋または－）を選択してください');return;}
     }
-    const det=qs('#f-evdet').value.trim()||'記録';
+    const modalCalf=window._modalCalfType||'';
+    const modalCalfLabel=(type==='妊娠鑑定'&&qs('#f-res')&&qs('#f-res').value==='＋'&&modalCalf)?(modalCalf==='f1'?' F1':' ホル♀'):'';
+    const det=(qs('#f-evdet').value.trim()||'記録')+modalCalfLabel;
+    window._modalCalfType=null;
     const newId=Math.max(0,...STATE.events.map(e=>e.id))+1;
     STATE.events.unshift({id:newId,cattleId:Number(cattleId),date:qs('#f-evdate').value,type,detail:det,vet:qs('#f-evvet').value,manual:true});
     // 分娩記録時にstatusを泌乳中に自動更新
@@ -1797,11 +1827,20 @@ const App={
         <div id="today-preg-preview" style="margin-bottom:14px"></div>
         <div class="finput">
           <label>結果</label>
-          <select id="today-preg-result" style="width:100%;border:1.5px solid #DEE6EF;border-radius:7px;padding:10px 12px;font-size:15px">
+          <select id="today-preg-result" onchange="App.onPregResultChange()" style="width:100%;border:1.5px solid #DEE6EF;border-radius:7px;padding:10px 12px;font-size:15px">
             <option value="">選択してください</option>
             <option value="＋">陽性（＋）</option>
             <option value="－">陰性（－）</option>
           </select>
+        </div>
+        <div class="finput" id="today-preg-calf-wrap" style="display:none">
+          <label>子牛の種別</label>
+          <div style="display:flex;gap:8px">
+            <button type="button" id="today-calf-f1" onclick="App.selectCalfType('f1')"
+              style="flex:1;padding:10px;border:2px solid #DEE6EF;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#555">F1</button>
+            <button type="button" id="today-calf-hol" onclick="App.selectCalfType('hol')"
+              style="flex:1;padding:10px;border:2px solid #DEE6EF;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#555">ホル♀</button>
+          </div>
         </div>
         <button class="btn btn-block" onclick="App.todayPregRecord()" id="today-preg-btn"
           style="opacity:.4;background:#7B1FA2;color:#fff;border-color:#7B1FA2;border-radius:7px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer" disabled>
@@ -1915,6 +1954,28 @@ const App={
     },'削除する');
   },
 
+  onPregResultChange(){
+    const result=qs('#today-preg-result').value;
+    const wrap=qs('#today-preg-calf-wrap');
+    if(wrap) wrap.style.display=(result==='＋'?'block':'none');
+    window._selectedCalfType=null;
+    const f1=qs('#today-calf-f1'); const hol=qs('#today-calf-hol');
+    if(f1){ f1.style.background='#fff'; f1.style.color='#555'; f1.style.borderColor='#DEE6EF'; }
+    if(hol){ hol.style.background='#fff'; hol.style.color='#555'; hol.style.borderColor='#DEE6EF'; }
+  },
+
+  selectCalfType(type){
+    window._selectedCalfType=type;
+    const f1=qs('#today-calf-f1'); const hol=qs('#today-calf-hol');
+    if(type==='f1'){
+      if(f1){ f1.style.background='#E65100'; f1.style.color='#fff'; f1.style.borderColor='#E65100'; }
+      if(hol){ hol.style.background='#fff'; hol.style.color='#555'; hol.style.borderColor='#DEE6EF'; }
+    } else {
+      if(hol){ hol.style.background='#1565C0'; hol.style.color='#fff'; hol.style.borderColor='#1565C0'; }
+      if(f1){ f1.style.background='#fff'; f1.style.color='#555'; f1.style.borderColor='#DEE6EF'; }
+    }
+  },
+
   todayPregLookup(){
     const num=(qs('#today-preg-num').value||'').trim();
     const preview=qs('#today-preg-preview');
@@ -1943,7 +2004,10 @@ const App={
     const result=qs('#today-preg-result').value;
     if(!cowId){ showToast('牛番号を入力してください'); return; }
     if(!result){ showToast('結果を選択してください'); return; }
-    const det='妊娠鑑定　'+(result==='＋'?'陽性（＋）':'陰性（－）');
+    const calfType=window._selectedCalfType||'';
+    const calfLabel=result==='＋'&&calfType?(calfType==='f1'?' F1':' ホル♀'):'';
+    const det='妊娠鑑定　'+(result==='＋'?'陽性（＋）':'陰性（－）')+calfLabel;
+    window._selectedCalfType=null;
     const newId=Math.max(0,...STATE.events.map(e=>e.id))+1;
     STATE.events.unshift({id:newId,cattleId:cowId,date:TODAY_STR,type:'妊娠鑑定',detail:det,vet:'',manual:true});
     saveState();
@@ -2033,7 +2097,12 @@ const App={
     buildReproList().forEach(c=>{
       if(c.preg==='positive'&&c.next){
         if(!dueMap[c.next]) dueMap[c.next]=[];
-        dueMap[c.next].push({name:c.name,code:c.code});
+        // 子牛種別を妊娠鑑定イベントのdetailから取得
+        const cow=STATE.cattle.find(x=>x.number===c.code);
+        const pregEv=cow?STATE.events.filter(e=>Number(e.cattleId)===Number(cow.id)&&e.type==='妊娠鑑定'&&(e.detail||'').includes('陽性')).sort((a,b)=>b.date.localeCompare(a.date))[0]:null;
+        const detail=pregEv?pregEv.detail||'':'';
+        const calfType=detail.includes('F1')?'F1':detail.includes('ホル♀')?'ホル♀':'';
+        dueMap[c.next].push({name:c.name,code:c.code,calfType});
       }
     });
 
@@ -2085,7 +2154,19 @@ const App={
       html+='<div style="font-size:12px;font-weight:'+(isToday?'900':'600')+';color:'+numColor+';text-align:center">'+d+'</div>';
       if(cows.length){
         html+='<div style="text-align:center;margin-top:2px"><span style="font-size:13px">🐄</span></div>';
-        html+='<div style="text-align:center;font-size:10px;font-weight:800;color:#2E7D32">'+cows.length+'頭</div>';
+        const f1c=cows.filter(x=>x.calfType==='F1').length;
+        const holc=cows.filter(x=>x.calfType==='ホル♀').length;
+        const unkc=cows.filter(x=>!x.calfType).length;
+        if(f1c||holc){
+          let sub='';
+          if(f1c) sub+='<span style="color:#E65100;font-weight:800">F1×'+f1c+'</span>';
+          if(f1c&&holc) sub+=' ';
+          if(holc) sub+='<span style="color:#1565C0;font-weight:800">♀×'+holc+'</span>';
+          if(unkc) sub+=' <span style="color:#888">?×'+unkc+'</span>';
+          html+='<div style="text-align:center;font-size:9px;line-height:1.3">'+sub+'</div>';
+        } else {
+          html+='<div style="text-align:center;font-size:10px;font-weight:800;color:#2E7D32">'+cows.length+'頭</div>';
+        }
       }
       html+='</div>';
     }
@@ -2095,7 +2176,7 @@ const App={
     const monthList=[];
     for(let d=1;d<=totalDays;d++){
       const k=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-      if(dueMap[k]) dueMap[k].forEach(function(c){ monthList.push({date:k,d:d,name:c.name,code:c.code}); });
+      if(dueMap[k]) dueMap[k].forEach(function(c){ monthList.push({date:k,d:d,name:c.name,code:c.code,calfType:c.calfType}); });
     }
 
     if(monthList.length){
@@ -2106,7 +2187,8 @@ const App={
         const dayLabel=days<0?Math.abs(days)+'日超過':days===0?'本日':days+'日後';
         html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0F4F8;cursor:pointer" onclick="App.jumpToKojiki(\''+c.code+'\')">';
         html+='<div style="font-size:11px;font-weight:700;color:'+col+';min-width:36px;text-align:center">'+c.d+'日</div>';
-        html+='<div style="flex:1"><div style="font-size:13px;font-weight:800">'+esc(c.name)+'</div>';
+        const calfBadge=c.calfType==='F1'?'<span style="background:#E65100;color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:800;margin-left:4px">F1</span>':c.calfType==='ホル♀'?'<span style="background:#1565C0;color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:800;margin-left:4px">ホル♀</span>':'';
+        html+='<div style="flex:1"><div style="font-size:13px;font-weight:800">'+esc(c.name)+calfBadge+'</div>';
         html+='<div style="font-size:11px;color:#7A9AB0">'+c.code+'</div></div>';
         html+='<div style="font-size:11px;font-weight:700;color:'+col+'">'+dayLabel+'</div>';
         html+='</div>';
