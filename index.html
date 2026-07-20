@@ -1630,7 +1630,7 @@ const App={
     if(!blocks.length){ showToast('個体情報が見つかりません'); return; }
 
     let added=0, updated=0;
-    const deletedNums=JSON.parse(localStorage.getItem('deleted_cattle_numbers')||'[]');
+    const deletedNums=JSON.parse(localStorage.getItem('deleted_cattle')||'[]');
 
     blocks.forEach(block=>{
       const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
@@ -1639,6 +1639,8 @@ const App={
       if(!codeMatch) return;
       const number=codeMatch[1];
       if(deletedNums.includes(number)) return;
+      // 3189以降はドリームランドが名前に入っている牛のみ取り込む
+      if(Number(number)>=3189 && !block.includes('ﾄﾞﾘ-ﾑﾗﾝﾄﾞ')) return;
 
       const nameLine=lines.find(l=>l.startsWith(number+' ')||l.startsWith(number+'\u3000'));
       const name=nameLine||number;
