@@ -1459,6 +1459,13 @@ const App={
             <button class="btn btn-primary btn-block" onclick="App.importMildas()" style="background:#2E7D32;border-color:#2E7D32">取り込む</button>
           </div>
 
+          <div style="background:#E3F2FD;border-radius:10px;padding:14px;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:800;color:#1B3A5C;margin-bottom:6px">🐮 個体情報取り込み</div>
+            <div style="font-size:12px;color:#7A9AB0;margin-bottom:10px">ミルダスの個体情報一覧のテキストを貼り付けます。新規牛の登録・名前・生年月日・母牛番号を更新します。</div>
+            <textarea id="cattle-info-input" rows="5" style="width:100%;border:1.5px solid #DEE6EF;border-radius:7px;padding:10px;font-size:12px;margin-bottom:8px" placeholder="個体情報のテキストをここに貼り付けてください"></textarea>
+            <button class="btn btn-primary btn-block" onclick="App.importCattleInfo()" style="background:#1565C0;border-color:#1565C0">取り込む</button>
+          </div>
+
           <div style="background:#FFF8E1;border-radius:10px;padding:12px;margin-bottom:16px">
             <div style="font-size:11px;color:#F57F17;font-weight:700">⚠️ 使い方</div>
             <div style="font-size:11px;color:#7A9AB0;margin-top:4px;line-height:1.7">
@@ -1613,6 +1620,64 @@ const App={
     this.closeModal();
     this.tab(CURRENT_TAB);
     showToast(`取り込み完了：${records.length}頭（新規${addedCattle}頭・記録${updatedEvents}件更新）`);
+  },
+
+  importCattleInfo(){
+    const text=qs('#cattle-info-input').value.trim();
+    if(!text){ showToast('テキストを貼り付けてください'); return; }
+
+    const blocks=text.split(/(?=\(牛ｺｰﾄﾞ\s+\d+\s*\))/).filter(b=>b.trim());
+    if(!blocks.length){ showToast('個体情報が見つかりません'); return; }
+
+    let added=0, updated=0;
+    const deletedNums=JSON.parse(localStorage.getItem('deleted_cattle_numbers')||'[]');
+
+    blocks.forEach(block=>{
+      const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
+
+      const codeMatch=block.match(/\(牛ｺｰﾄﾞ\s+(\d+)\s*\)/);
+      if(!codeMatch) return;
+      const number=codeMatch[1];
+      if(deletedNums.includes(number)) return;
+
+      const nameLine=lines.find(l=>l.startsWith(number+' ')||l.startsWith(number+'\u3000'));
+      const name=nameLine||number;
+
+      const bdMatch=block.match(/(\d{4})\/(\d{2})\/(\d{2})出生/);
+      const birthdate=bdMatch?bdMatch[1]+'-'+bdMatch[2]+'-'+bdMatch[3]:'';
+
+      const sexMatch=block.match(/性別[：:]\s*(メス|オス)/);
+      const sex=sexMatch?(sexMatch[1]==='メス'?'雌':'雄'):'雌';
+
+      let breed='ホルスタイン';
+      if(block.includes('交雑')) breed='交雑種';
+      else if(block.includes('ジャージー')) breed='ジャージー';
+
+      const lastNumLine=lines.filter(l=>/^\d+\s+\d+\s+\d+$/.test(l)).pop();
+      let motherNum='';
+      if(lastNumLine){
+        const parts=lastNumLine.split(/\s+/);
+        if(parts.length>=2) motherNum=parts[1];
+      }
+      const notes=motherNum?'母牛：'+motherNum:'';
+
+      const existing=STATE.cattle.find(c=>c.number===number);
+      if(existing){
+        existing.name=name;
+        if(birthdate) existing.birthdate=birthdate;
+        if(notes) existing.notes=notes;
+        updated++;
+      } else {
+        const newId=Math.max(0,...STATE.cattle.map(c=>c.id))+1;
+        STATE.cattle.push({id:newId,number,name,breed,birthdate,sex,status:'育成中',notes});
+        added++;
+      }
+    });
+
+    saveState();
+    this.closeModal();
+    this.tab(CURRENT_TAB);
+    showToast('個体情報取り込み完了：新規'+added+'頭・更新'+updated+'頭');
   },
 
   exportData(){
