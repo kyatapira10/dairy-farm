@@ -1685,7 +1685,8 @@ const App={
       if(block.includes('交雑')) breed='交雑種';
       else if(block.includes('ジャージー')) breed='ジャージー';
 
-      const lastNumLine=lines.filter(l=>/^\d+\s+\d+\s+\d+$/.test(l)).pop();
+      // 母牛行：ブロックの最後の行（数字 数字 数字の形）
+      const lastNumLine=lines.slice().reverse().find(l=>/^\d+\s+\d+\s+\d+$/.test(l)&&!l.startsWith(number+' '));
       let motherNum='';
       if(lastNumLine){
         const parts=lastNumLine.split(/\s+/);
