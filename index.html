@@ -1661,6 +1661,7 @@ const App={
 
     let added=0, updated=0;
     const deletedNums=JSON.parse(localStorage.getItem('deleted_cattle')||'[]');
+    const seenNums=new Set();
 
     blocks.forEach(block=>{
       const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
@@ -1671,6 +1672,7 @@ const App={
       if(deletedNums.includes(number)) return;
       // 3189以降はドリームランドが名前に入っている牛のみ取り込む
       if(Number(number)>=3189 && !block.includes('ﾄﾞﾘ-ﾑﾗﾝﾄﾞ')) return;
+      seenNums.add(Number(number));
 
       const nameLine=lines.find(l=>l.startsWith(number+' ')||l.startsWith(number+'\u3000'));
       const name=nameLine||number;
@@ -1708,9 +1710,60 @@ const App={
     });
 
     saveState();
-    this.closeModal();
     this.tab(CURRENT_TAB);
     showToast('個体情報取り込み完了：新規'+added+'頭・更新'+updated+'頭');
+
+    // 個体情報にいない牛を探す
+    const missing=STATE.cattle.filter(c=>!seenNums.has(Number(c.number)));
+    if(!missing.length || !seenNums.size){ this.closeModal(); return; }
+    this.showMissingCattle(missing, seenNums.size);
+  },
+
+  showMissingCattle(missing, seenCount){
+    const fewWarn=seenCount<STATE.cattle.length/2
+      ?'<div style="background:#FFEBEE;color:#C62828;border-radius:8px;padding:10px;font-size:12px;font-weight:700;margin-bottom:10px">⚠️ 貼り付けた頭数が少ないです。全頭分を貼り付けたか確認してください。</div>':'';
+    let rows='';
+    missing.forEach(c=>{
+      rows+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0F4F8;cursor:pointer">'
+        +'<input type="checkbox" class="miss-chk" value="'+c.id+'" checked style="width:20px;height:20px">'
+        +'<div style="flex:1"><div style="font-size:13px;font-weight:800">'+esc(c.name)+'</div>'
+        +'<div style="font-size:11px;color:#7A9AB0">'+esc(c.number)+'　'+esc(c.status)+'</div></div></label>';
+    });
+    qs('#modal-container').innerHTML=`
+      <div class="overlay" onclick="if(event.target===this)App.closeModal()">
+        <div class="sheet">
+          <div class="sheet-hdr"><h3 class="sheet-title">個体情報にいない牛：${missing.length}頭</h3><button class="sheet-close" onclick="App.closeModal()">✕</button></div>
+          ${fewWarn}
+          <div style="font-size:12px;color:#7A9AB0;margin-bottom:8px">削除する牛にチェックを入れてください。削除した牛はミルダスを取り込んでも戻りません。</div>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <button class="fbtn" style="background:#EEF2F7;color:#37474F" onclick="document.querySelectorAll('.miss-chk').forEach(x=>x.checked=true)">全選択</button>
+            <button class="fbtn" style="background:#EEF2F7;color:#37474F" onclick="document.querySelectorAll('.miss-chk').forEach(x=>x.checked=false)">全解除</button>
+          </div>
+          <div style="max-height:50vh;overflow-y:auto;margin-bottom:14px">${rows}</div>
+          <button class="btn btn-block" style="background:#C62828;color:#fff;border-color:#C62828" onclick="App.deleteMissingCattle()">チェックした牛を削除</button>
+          <button class="btn btn-outline btn-block" style="margin-top:8px" onclick="App.closeModal()">削除しない</button>
+          <div style="height:16px"></div>
+        </div>
+      </div>`;
+  },
+
+  deleteMissingCattle(){
+    const ids=Array.from(document.querySelectorAll('.miss-chk:checked')).map(x=>Number(x.value));
+    if(!ids.length){ showToast('削除する牛が選ばれていません'); return; }
+    customConfirm(ids.length+'頭とその記録を削除しますか？\nこの操作は元に戻せません。',()=>{
+      const deleted=JSON.parse(localStorage.getItem('deleted_cattle')||'[]');
+      STATE.cattle.filter(c=>ids.includes(Number(c.id))).forEach(c=>{
+        if(!deleted.includes(c.number)) deleted.push(c.number);
+      });
+      localStorage.setItem('deleted_cattle',JSON.stringify(deleted));
+      STATE.cattle=STATE.cattle.filter(c=>!ids.includes(Number(c.id)));
+      STATE.events=STATE.events.filter(e=>!ids.includes(Number(e.cattleId)));
+      saveState();
+      this.closeModal();
+      SELECTED_COW=null;
+      this.tab(CURRENT_TAB);
+      showToast(ids.length+'頭を削除しました');
+    });
   },
 
   exportData(){
