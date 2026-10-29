@@ -318,6 +318,15 @@ function saveState(){ Store.save(STATE); }
     return cow;
   });
 
+  // 母牛表示をメモから削除
+  STATE.cattle = STATE.cattle.map(cow=>{
+    if(cow.notes && /母牛：\s*\d+/.test(cow.notes)){
+      dirty = true;
+      return {...cow, notes: cow.notes.replace(/母牛：\s*\d+/g,'').trim()};
+    }
+    return cow;
+  });
+
   // 妊娠鑑定イベントはミルダス取り込みと手動入力を尊重（自動削除しない）
 
   if(dirty) saveState();
@@ -1491,7 +1500,7 @@ const App={
 
           <div style="background:#E3F2FD;border-radius:10px;padding:14px;margin-bottom:16px">
             <div style="font-size:13px;font-weight:800;color:#1B3A5C;margin-bottom:6px">🐮 個体情報取り込み</div>
-            <div style="font-size:12px;color:#7A9AB0;margin-bottom:10px">ミルダスの個体情報一覧のテキストを貼り付けます。新規牛の登録・名前・生年月日・母牛番号を更新します。</div>
+            <div style="font-size:12px;color:#7A9AB0;margin-bottom:10px">ミルダスの個体情報一覧のテキストを貼り付けます。新規牛の登録・名前・生年月日を更新します。</div>
             <textarea id="cattle-info-input" rows="5" style="width:100%;border:1.5px solid #DEE6EF;border-radius:7px;padding:10px;font-size:12px;margin-bottom:8px" placeholder="個体情報のテキストをここに貼り付けてください"></textarea>
             <button class="btn btn-primary btn-block" onclick="App.importCattleInfo()" style="background:#1565C0;border-color:#1565C0">取り込む</button>
           </div>
@@ -1700,11 +1709,10 @@ const App={
       if(existing){
         existing.name=name;
         if(birthdate) existing.birthdate=birthdate;
-        if(notes) existing.notes=notes;
         updated++;
       } else {
         const newId=Math.max(0,...STATE.cattle.map(c=>c.id))+1;
-        STATE.cattle.push({id:newId,number,name,breed,birthdate,sex,status:'育成中',notes});
+        STATE.cattle.push({id:newId,number,name,breed,birthdate,sex,status:'育成中',notes:''});
         added++;
       }
     });
